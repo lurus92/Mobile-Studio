@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Mobile Studio v0.0.1</title>
+    <link rel="stylesheet" href="css/startup.css">
+    <script>window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');</script>
+
+    <script>
+        $(window).ready(function(){
+            $("#startNewApp").on("click", openEditorAndClose);
+        });
+        function openEditorAndClose(){
+            const {ipcRenderer} = require('electron');
+            let myNotification = new Notification('Editor Started');
+            ipcRenderer.send('asynchronous-message', 'startEditor');
+        }
+    </script>
+  </head>
+  <body>
+      <h2>Welcome</h2>
+      <img src="img/startupIcon.png"/>
+      
+
+      <h1><strong>Mobile</strong> Studio</h1>
+      <h4>The first cross-platform IDE for cross-platfor mobile apps</h4>
+      <button id="startNewApp">Create a new app</button>
+  </body>
+</html>

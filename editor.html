@@ -1,0 +1,23 @@
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Mobile Studio v0.0.1 - Editor</title>
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.min.css">
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.structure.min.css">
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.theme.min.css">
+        <link rel="stylesheet" href="css/editor.css">
+        <script>
+            window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');
+            require('./js/jquery-ui.min.js');
+            
+              $(function() {
+                $( "#filePanel" ).resizable();
+                $( "#componentsPanel" ).resizable();
+            });
+        </script>
+    </head>
+    <body>
+        <aside id="filePanel">Active Files</aside>
+        <aside id="componentsPanel"></aside>
+    </body>
+</html>

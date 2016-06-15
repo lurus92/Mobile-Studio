@@ -1,0 +1,40 @@
+body{
+    background: radial-gradient(circle, #ffffff, #BDBDBD);;
+    background-repeat: no-repeat;
+    width: 800px;
+    height: 600px;
+    font-family: "Helvetica Neue","Helvetica","Calibri";
+    color: gray;
+    text-align: center;
+}
+
+h1{
+    font-weight: 100;
+    color: black;
+    font-size: 70px;
+    margin: 10px;
+}
+
+h4{
+    margin: 0;
+}
+
+h2,h3,h4,h5,h6{
+    font-weight: 100;
+}
+
+#buttonNew{
+    background-color: #8bc34a;
+    color: white;
+    border-radius: 10px;
+    border-style: none;
+    padding: 10px;
+}
+
+img{
+    width: 256px;
+}
+
+strong{
+    font-weight: 400;
+}
