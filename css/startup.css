@@ -1,16 +1,21 @@
+html{
+    -webkit-app-region: drag;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+}
+
 body{
-    background: radial-gradient(circle, #ffffff, #BDBDBD);;
+    background: radial-gradient(circle, #848484, #4C4C4C);;
     background-repeat: no-repeat;
     width: 800px;
     height: 600px;
     font-family: "Helvetica Neue","Helvetica","Calibri";
-    color: gray;
+    color: white;
     text-align: center;
 }
 
 h1{
     font-weight: 100;
-    color: black;
     font-size: 70px;
     margin: 10px;
 }
@@ -23,6 +28,10 @@ h2,h3,h4,h5,h6{
     font-weight: 100;
 }
 
+h2{
+    margin-bottom: 50px;
+}
+
 #buttonNew{
     background-color: #8bc34a;
     color: white;
@@ -31,10 +40,139 @@ h2,h3,h4,h5,h6{
     padding: 10px;
 }
 
+@keyframes animImg {
+    from {left: 0px; margin-bottom: 0px;}
+    to {left: -200px; margin-bottom: 50px;}
+}
 img{
     width: 256px;
+    position: relative;
+    margin-bottom: 0px;
+    left: 0px;
+    
+    animation-name: animImg;
+    animation-duration: 1.5s;
+    animation-delay: 1s;
+    animation-fill-mode: forwards;
 }
 
 strong{
     font-weight: 400;
+}
+
+@keyframes animDrawer {
+    from {right: -420px;}
+    to {right: 20px;}
+}
+
+#projectsDrawer{
+    position: absolute;
+    background-color: #4A4A4A;
+    border-radius: 10px;
+    width: 400px;
+    height: 300px;
+    box-shadow: inset 1px 1px 10px #000;
+    right: -420px;
+    top: 100px;
+    
+    animation-name: animDrawer;
+    animation-duration: 1.5s;
+    animation-delay: 1s;
+    animation-fill-mode: forwards;
+}
+
+
+#projectsDrawer button{
+    position: absolute;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    color: white;
+    background-color: #7ED321;
+    border-width: 0;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    height: 40px;
+    text-align: right;
+    font-size: 18px;
+    padding-right: 20px;
+    box-shadow: inset 1px 1px 3px #000;
+}
+
+#projectsDrawer h1{
+    font-size: 20px;
+    text-align: left;
+    position: relative;
+    top: -40px;
+}
+
+@keyframes hideFirstScreen {
+    from {left: 0px;}
+    to {left: -800px;}
+}
+
+#firstScreen{
+    position: relative;
+    top: 0px;
+    left: 0px;
+    
+    animation-name: hideFirstScreen;
+    animation-duration: 1.5s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
+}
+
+@keyframes showSecondScreen {
+    from {left: 800px;}
+    to {left: 0px;}
+}
+
+#secondScreen{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 800px;
+    top: 0px;
+   /* background-color: black;*/
+    animation-name: showSecondScreen;
+    animation-duration: 1.5s;
+    animation-delay: 4s;
+    animation-fill-mode: forwards;
+}
+
+#secondScreen form .textInput{
+    height: 10px;
+    color: white;
+    background-color: #4A4A4A;
+    border-radius: 5px;
+    border-width: 0;
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: inset 1px 1px 10px #000;
+}
+
+#nameProject{
+    width: 600px;
+}
+
+#dirProject{
+    width: 550px;
+    display: inline-block;
+    margin-right: 6px;
+}
+
+form{
+    padding-top: 50px;
+    width: 80%;
+    margin: 0 auto;
+    text-align: left;
+}
+
+#btnDir{
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border-width: 0;
+    box-shadow: inset 1px 1px 10px #000;
+
 }

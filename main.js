@@ -10,9 +10,11 @@ function createStartWindow() {
       width: 800,
       height: 600,
       resizable: false,
-      icon: `file://${__dirname}/img/startupIcon.png`
+      icon: `file://${__dirname}/img/startupIcon.png`,
+      titleBarStyle: 'hidden'
+
   });
-  startWindow.loadURL(`file://${__dirname}/index.html`);      startWindow.webContents.openDevTools();
+  startWindow.loadURL(`file://${__dirname}/index.html`);      
 
   startWindow.on('closed', () => {
     startWindow = null;
@@ -41,7 +43,7 @@ app.on('window-all-closed', () => {
 
 app.on('activate', () => {
   if (startWindow === null) {
-    createWindow();
+    createStartWindow();
   }
 });
 
@@ -49,8 +51,8 @@ app.on('activate', () => {
 const {ipcMain} = require('electron');
 
 ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log(arg);  // prints "ping"
-  if(arg=="startEditor"){
+  console.log(arg);
+  if(arg[0]=="startEditor"){
     createEditorWindow();
   }
 });

@@ -7,23 +7,63 @@
     <script>window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');</script>
 
     <script>
+        var workingPath = null;
+        
         $(window).ready(function(){
             $("#startNewApp").on("click", openEditorAndClose);
+            $("#startEditorBtn").on("click", openEditorAndClose);
+            $("#btnDir").on("click",function(event){
+                event.preventDefault();
+                selectDir();
+            });
         });
         function openEditorAndClose(){
             const {ipcRenderer} = require('electron');
-            let myNotification = new Notification('Editor Started');
-            ipcRenderer.send('asynchronous-message', 'startEditor');
+            if(!workingPath) alert("Error: no folder specified");
+            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath]);
         }
+        
+        
+        function selectDir(){
+            const {dialog} = require('electron').remote;
+            
+            workingPath = dialog.showOpenDialog({properties: ['openDirectory']});
+            
+            $("#dirProject").val(workingPath);
+            
+            console.log("esecuzione finita!!!");
+        }
+
     </script>
   </head>
   <body>
-      <h2>Welcome</h2>
-      <img src="img/startupIcon.png"/>
-      
+      <section id="firstScreen">
+          <h2>Welcome</h2>
+          <img src="img/mainIcon.png"/>
 
-      <h1><strong>Mobile</strong> Studio</h1>
-      <h4>The first cross-platform IDE for cross-platfor mobile apps</h4>
-      <button id="startNewApp">Create a new app</button>
+
+          <h1><strong>Mobile</strong> Studio</h1>
+          <h4>The first cross-platform IDE for cross-platform mobile apps</h4>
+          <br>
+          <section id="projectsDrawer">
+                <h1>Your Projects</h1>
+                <button id="startNewApp">Create a new app</button>
+          </section>
+      </section>
+      <section id="secondScreen">
+          <form>
+              <input id="nameProject" class="textInput" type="text" placeholder="Give a name to your fantastic project"/>
+              <br><input id="dirProject" class="textInput" type="text" placeholder="Select project folder"/>
+              <button id="btnDir">...</button>
+              <br>
+         
+              Build for
+              <br/>
+              <input type="checkbox">Android<br>
+              <input type="checkbox">iOS<br>
+              <br><br>
+              <button id="startEditorBtn">Start Editor</button>
+          </form>
+      </section>
   </body>
 </html>
