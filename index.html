@@ -5,21 +5,50 @@
     <title>Mobile Studio v0.0.1</title>
     <link rel="stylesheet" href="css/startup.css">
     <script>window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');</script>
+    <script>window.FSM = require('./js/FileSystemManager.js');</script>
 
     <script>
         var workingPath = null;
         
-        $(window).ready(function(){
-            $("#startNewApp").on("click", openEditorAndClose);
-            $("#startEditorBtn").on("click", openEditorAndClose);
+        $(window).ready(function(){    
+                        
+            //require('shelljs/global');        Questo provoca ERRORONI!
+            
+            //checkIfNativeScriptIsPresent();
+            
+            $("#createNewProject").on("click", function(){
+                    $("#firstScreen").addClass("animate");
+                    $("#secondScreen").addClass("animate");   
+            });
+            
+            $("#startEditorBtn").on("click", function(event){
+                event.preventDefault();
+                openEditorAndClose();  
+            });
             $("#btnDir").on("click",function(event){
                 event.preventDefault();
                 selectDir();
             });
         });
+        
+       /* function checkIfNativeScriptIsPresent(){
+            /*try {
+                console.log(require.resolve("tns"));
+            } catch(e) {
+                alert("Warning: NativeScript has not been found in your system. NativeScript is needed to run Mobile Studio, please install it. ");
+                window.close();
+            }
+            if (!which('blablabla')) {
+              alert('Sorry, this script requires BlaBlaBla!!!');
+              exit(1);
+            }
+        }*/
+        
         function openEditorAndClose(){
             const {ipcRenderer} = require('electron');
             if(!workingPath) alert("Error: no folder specified");
+            /*var fs = new FileSystemManager(workingPath);
+            alert(fs.getWorkingPath);*/
             else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath]);
         }
         
@@ -30,9 +59,8 @@
             workingPath = dialog.showOpenDialog({properties: ['openDirectory']});
             
             $("#dirProject").val(workingPath);
-            
-            console.log("esecuzione finita!!!");
-        }
+            }
+        
 
     </script>
   </head>
@@ -47,7 +75,7 @@
           <br>
           <section id="projectsDrawer">
                 <h1>Your Projects</h1>
-                <button id="startNewApp">Create a new app</button>
+                <button id="createNewProject">Create a new app</button>
           </section>
       </section>
       <section id="secondScreen">

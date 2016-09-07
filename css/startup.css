@@ -12,6 +12,7 @@ body{
     font-family: "Helvetica Neue","Helvetica","Calibri";
     color: white;
     text-align: center;
+    overflow: hidden;
 }
 
 h1{
@@ -116,9 +117,11 @@ strong{
     top: 0px;
     left: 0px;
     
+}
+
+#firstScreen.animate{
     animation-name: hideFirstScreen;
     animation-duration: 1.5s;
-    animation-delay: 4s;
     animation-fill-mode: forwards;
 }
 
@@ -134,9 +137,11 @@ strong{
     left: 800px;
     top: 0px;
    /* background-color: black;*/
+}
+
+#secondScreen.animate{
     animation-name: showSecondScreen;
     animation-duration: 1.5s;
-    animation-delay: 4s;
     animation-fill-mode: forwards;
 }
 

@@ -3,14 +3,37 @@ body{
     padding: 0;
     font-family: "Helvetica Neue","Helvetica","Calibri";
     display: flex;
+    overflow: hidden;
+}
+
+nav{
+    color: white;
+    background-color: black;
+    height: 32px;
+    width: 100%;
+    line-height: 32px;
+    padding-left: 10px;
+}
+
+nav button{
+    float: right;
+    /* top: 10px; */
+    margin-top: 8px;
+    margin-right: 9px;
+    
 }
 
 table{
+    left: 0;
+    top:32px;
     width: 100%;
-    height: 100%;
+    height: 100%;                /*TODO: NOT CORRECT*/
     border-collapse: collapse;
 }
 
+td {
+    vertical-align: top;
+}
 
 #filePanel{
     background-color: #2F2F2F;
@@ -24,8 +47,59 @@ table{
     width: 200px;
     height: 100%;
     color: white;
+    text-align: center;
 }
 
 #mainContent{
     /*background-color: red;*/
+    /*z-index: -1;*/
+    background-size: 20px 20px;
+    background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);
+    overflow: scroll;
+
+}
+
+.window{
+    position:absolute;
+    width:350;
+    height: 500;
+    
+}
+
+.drawn-element{
+    background:white;
+    color:lightgray;
+    border-style: solid;
+    border-width: 2px;
+    border-color: lightblue;
+}
+
+.component{
+    width: 70px;
+    height: 100px;
+    display: inline-block;
+    background-color: green;
+    margin: auto;
+    z-index: 5;
+}
+
+.drawn-element:active{
+    border-color: blue;
+}
+
+.infoHovering{
+    background-color: rgba(100,100,100,0.8);
+    position: absolute;
+    padding: 20px;
+    color: white;
+    border-radius: 10px;
+}
+
+.infoHovering input[type="submit"]{
+    color: white;
+    background-color: red;
+    border-style: solid;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
 }
