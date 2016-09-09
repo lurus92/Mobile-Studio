@@ -9,6 +9,7 @@
 
     <script>
         var workingPath = null;
+        var projectName = null;
         
         $(window).ready(function(){    
                         
@@ -29,7 +30,26 @@
                 event.preventDefault();
                 selectDir();
             });
+            
+            
+            retriveProjects();
+            
         });
+        
+        function retriveProjects(){
+            const {app} = require('electron').remote;
+            var homePath = app.getPath("userData");
+            fs = require('fs')
+            fs.readFile(homePath+"/history", 'utf8', function (err,data) {
+              if (err) {
+                return console.log(err);
+              }
+              console.log(data);
+              var dataJSON = JSON.parse(data);
+              $("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
+              $("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");
+            });
+        }
         
        /* function checkIfNativeScriptIsPresent(){
             /*try {
@@ -46,10 +66,12 @@
         
         function openEditorAndClose(){
             const {ipcRenderer} = require('electron');
-            if(!workingPath) alert("Error: no folder specified");
+            if(!workingPath) alert("Please specify a valid folder");
+            projectName = $("#nameProject").val();
+            if (projectName=="") alert("Please insert a name for the project");
             /*var fs = new FileSystemManager(workingPath);
             alert(fs.getWorkingPath);*/
-            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath]);
+            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath, projectName]);
         }
         
         

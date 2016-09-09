@@ -30,7 +30,7 @@ function checkIfNativeScriptIsIntalled(){
 }
 }
 */
-function createEditorWindow(path){
+function createEditorWindow(path, prjName){
   startWindow.close();
   editorWindow = new BrowserWindow({
       width: 1024,
@@ -39,7 +39,7 @@ function createEditorWindow(path){
   editorWindow.loadURL(`file://${__dirname}/editor.html`);
   //editorWindow.send('asynchronous-message', ["initialization", path]);
   editorWindow.webContents.on('did-finish-load', () => {
-    editorWindow.webContents.send('asynchronous-message', ["initialization", path])
+    editorWindow.webContents.send('asynchronous-message', ["initialization", path, prjName])
   })
   editorWindow.on('closed', () => {
     editorWindow = null;
@@ -69,7 +69,7 @@ ipcMain.on('asynchronous-message', (event, arg) => {
   console.log(arg);
   if(arg[0]=="startEditor"){        //arg[0] is the name of the message
     //prepareNS(arg[1]);
-    createEditorWindow(arg[1]);     //arg[1] and followers are other parameters
+    createEditorWindow(arg[1], arg[2]);     //arg[1] and followers are other parameters
   }
 });
 

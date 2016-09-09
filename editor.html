@@ -12,6 +12,7 @@
         <script src="js/bootstrap/bootstrap.min.js"></script-->
         
         <script src="js/translator.js"></script>
+        <script src="js/editor-backend.js"></script>
         
         <link rel="stylesheet" href="css/editor.css">
 
@@ -39,26 +40,13 @@
                     //messageReceived = arg;
                     switch(arg[0]){
                         case "initialization": {initialization(arg); break;}
-                        //default: console.log("error");
+                        //default: console.log(arg);
                     }
                 });
                 
             });
             
-            function getFiles (dir, files_){
-                var fs = require('fs');
-                files_ = files_ || [];
-                var files = fs.readdirSync(dir);
-                for (var i in files){
-                    var name = dir + '/' + files[i];
-                    if (fs.statSync(name).isDirectory()){
-                        getFiles(name, files_);
-                    } else {
-                        files_.push(name);
-                    }
-                }
-                return files_;
-            }
+        
             
             function deleteElement(idToDelete){
                     $("#"+idToDelete).remove();
@@ -75,54 +63,10 @@
 
             
             function initialization(config){        //config[1]: working path [it is in 0 position]
-                var path = config[1][0];
-                var name = "testName";
-                //Backend stuff
-                //TODO: WORK HERE
-                var sys = require('util'),
-                    childProcess = require('child_process'),
-                    fixPath = require('fix-path');
-                fixPath();      //Required to reset path and execute commands
-                var cmdBuildPrj = '/usr/local/bin/tns create '+name+' --ng';        //TODO: CHECK FOR WIN
-                //var ns = require("nativescript");
-                //console.log(ns);
-                /*var cmdTest = 'mkdir provadir';
-                console.log("NOW LETS SEE ALL THE FILES IN THE DESKTOP:")
-                console.log(getFiles(config[1][0]));                
-                console.log("Going to execute command: "+cmdTest);
-                //console.log(config[1][0]);
-                exec(cmdTest, {cwd: ""+config[1][0]+""}, function(error, stdout, stderr) {
-                    console.log("cd: " + error + " : "  + stdout);
-                  // command output is in stdout
-                });
-                /*exec(cmdTest, function(error, stdout, stderr) {
-                    console.log(stdout);
-                  // command output is in stdout
-                });*/
-
-                //const execSync = require('child_process').execSync;
-                /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT****
-                childProcess.execSync(cmdBuildPrj, {cwd: path}, function(error, stdout, stderr) {
-                    //Callback function to execute when command is executed
-                    console.log("cmd: " + error + " : "  + stdout);
-                    $("#loadingPanel").hide();
-                });*/
                 
-                /*
-                CHECK THIS FUNCTION IF YOU WANT TO DISPLAY A PROPER CONSOLE
-                childProcess.stdout.on('data', function(data) {
-                    console.log(data); 
-                });*/
-                /*
-                files = getFiles(path+"/"+name);
-
-                for (var i in files){
-                    $("#filePanel").append(files[i]+"<br>");
-                }*/
-                
-                //$("#filePanel").hide();
-                                
+                buildNewProject(config);        //Check if we need to create a new project
                 $("#loadingPanel").hide();
+                
                 
                 
                 /*****************************FRONT END*******************************/
@@ -211,6 +155,7 @@
                 
             }
                 
+           
             
         </script>
     </head>
