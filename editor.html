@@ -51,7 +51,8 @@
             function deleteElement(idToDelete){
                     $("#"+idToDelete).remove();
                     $(".infoHovering").remove();
-                    //Delete from model
+                    //Delete from model!!!
+                    application.screens.splice(idToDelete,1);                    
                 }
             
             
@@ -109,43 +110,88 @@
                               
                               //InfoBox
                               $(".window").click(function(sender){
-                                  console.log(sender.target.id);
-                                  var infoPanel =   `<div class="infoHovering" style="top:`+ui.position.top+`; left: `+(leftOffset+400)+`;">
-                                                        <h1>Screen`+application.screens[""+sender.target.id+""].id+`</h1>
-                                                        Screen UI Element
-                                                        <br/>
-                                                        id: <input type="text" value="`+application.screens[""+sender.target.id+""].id+`"/>
-                                                        <br/>
-                                                        layout: <input type="text" value="`+application.screens[""+sender.target.id+""].layout+`"/>
-                                                        <br/>
-                                                        <input value="DELETE" type="submit" onclick="deleteElement('`+application.screens[""+sender.target.id+""].id+`');">
-            
-                                                    </div>`;
-                                  //var infoPanel = "<h1>Ciaone</h1>";
-                                  $("#mainContent").append(infoPanel);
+                                  if (sender.target.id.substring(0,3)=="win"){
+                                      console.log(sender.target.id);
+                                     // var infoPanel =   `<div class="infoHovering" style="top:`+ui.position.top+`; left: `+(leftOffset+400)+`;">
+                                      var infoPanel =   `<div class="infoHovering" style="top:`+sender.target.style.top+`; left: `+(parseInt(sender.target.style.left)+400)+`;">
+                                                            <h1>Screen`+application.screens[""+sender.target.id+""].id+`</h1>
+                                                            Screen UI Element
+                                                            <br/>
+                                                            id: <input type="text" value="`+application.screens[""+sender.target.id+""].id+`"/>
+                                                            <br/>
+                                                            layout: <input type="text" value="`+application.screens[""+sender.target.id+""].layout+`"/>
+                                                            <br/>
+                                                            <input value="DELETE" type="submit" onclick="deleteElement('`+application.screens[""+sender.target.id+""].id+`');">
+
+                                                        </div>`;
+                                      //var infoPanel = "<h1>Ciaone</h1>";
+                                      $("#mainContent").append(infoPanel);
+                                  }else{
+                                      var infoPanel =   `<div class="infoHovering" style="top:`+sender.target.style.top+`; left: `+(parseInt(sender.target.style.left)+400)+`;">
+                                                                        <h1>Component `+application.screens[this.id].components[""+sender.target.id+""].id+`</h1>
+                                                                        Screen UI Element
+                                                                        <br/>
+                                                                        id: <input type="text" value="`+application.screens[this.id].components[""+sender.target.id+""].id+`"/>
+                                                                        <br/>
+                                                                        layout: <input type="text" value="`+application.screens[this.id].components[""+sender.target.id+""].layout+`"/>
+                                                                        <br/>
+                                                                        <input value="DELETE" type="submit" onclick="deleteElement('`+application.screens[this.id].components[""+sender.target.id+""].id+`');">
+
+                                                                    </div>`;
+                                                  //var infoPanel = "<h1>Ciaone</h1>";
+                                                  $("#mainContent").append(infoPanel);
+                                  }
                                
                               });
                               $(".window").droppable({
                                   drop: function( event, ui ) {
-                                        console.log("Dropping textbox!");
+                                        console.log("Dropping element!");
                                         
                                           switch (ui.draggable[0].innerText){
                                               case "TEXT": {
                                                   //Create Graphics
-                                                  var sampleTextHTML = "<div id='label0' style='border-width: 1' class='drawn-element label'>HELLO WORLD!</div>";
+                                                  //TODO: Create better ID!!!
+                                                  var id = "label"+application.screens[this.id].components.length;
+                                                  var sampleTextHTML = "<div id='"+id+"' style='border-width: 1' class='drawn-element label'>HELLO WORLD!</div>";
                                                   $(this).append(sampleTextHTML);
                                                   //Update Model
                                                   //Setting a property via constructor
                                                   var component = new model.Component ("label0","label");
                                                   //Creation of an attribute at run time:
+                                                
                                                   component.text = "HELLO WORLD"
-                                                  application.screens[this.id].components.push(component);
+                                                  //application.screens[this.id].components.push(component);
+                                                  application.screens[this.id].components[""+id+""] = component;
+                                                  application.screens[this.id].components.length++;
                                                   //console.log(this.id);
                                                   }
                                                   break;
                                               }
+                                      //InfoBox
+                                      /*
+                                              $(".drawn-elment").click(function(sender){
+                                                  console.log(sender.target.id);
+                                                  console.log(this.id);
+                                                 // var infoPanel =   `<div class="infoHovering" style="top:`+ui.position.top+`; left: `+(leftOffset+400)+`;">
+                                                  var infoPanel =   `<div class="infoHovering" style="top:`+sender.target.style.top+`; left: `+(parseInt(sender.target.style.left)+400)+`;">
+                                                                        <h1>Component `+application.screens[this.id].components[""+sender.target.id+""].id+`</h1>
+                                                                        Screen UI Element
+                                                                        <br/>
+                                                                        id: <input type="text" value="`+application.screens[this.id].components[""+sender.target.id+""].id+`"/>
+                                                                        <br/>
+                                                                        layout: <input type="text" value="`+application.screens[this.id].components[""+sender.target.id+""].layout+`"/>
+                                                                        <br/>
+                                                                        <input value="DELETE" type="submit" onclick="deleteElement('`+application.screens[this.id].components[""+sender.target.id+""].id+`');">
+
+                                                                    </div>`;
+                                                  //var infoPanel = "<h1>Ciaone</h1>";
+                                                  $("#mainContent").append(infoPanel);
+                                                  
+                                                  
+                               
+                              });*/
                                   }
-                      })    
+                      });    
                       //ui.draggable.clone().appendTo($(this)).draggable();
 
                   }
@@ -165,7 +211,7 @@
            <button id="androidGo">Compile for Android</button>
            <button id="iOSGo">Compile for iOS</button>
        </nav>
-       <section id="loadingPanel" style="position:absolute; width:100%; height:100%; top: 0; left:0; background:black; opacity:0.8; z-index:20;">
+       <section id="loadingPanel">
            <h1 style="color:white;">LOADING</h1>
        </section>
         <table style="position:absolute;">

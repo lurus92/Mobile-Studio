@@ -181,3 +181,23 @@ form{
     box-shadow: inset 1px 1px 10px #000;
 
 }
+
+.content-prj{
+    background: darkgray;
+    box-shadow: inset 1px 1px 2px #000;
+}
+
+.content-prj h2{
+    color: black;
+    text-align: left;
+    padding: 5px;
+    margin: 0;
+}
+
+.content-prj h3{
+    text-align: left;
+    font-size: 12px;
+    padding: 0;
+    margin: 0;
+    padding: 5px;
+}

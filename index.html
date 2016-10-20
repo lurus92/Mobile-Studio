@@ -44,10 +44,23 @@
               if (err) {
                 return console.log(err);
               }
-              console.log(data);
-              var dataJSON = JSON.parse(data);
-              $("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
-              $("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");
+              console.log("now showing raw data ");
+              var strData = "["+data+"]";
+              //console.log(strData);
+              strData = strData.replace("}{","},{");
+              var dataJSON = JSON.parse(strData);
+              /*console.log("now showing parsed data");
+              console.log(dataJSON);*/
+              //$("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
+              //$("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");
+              for(var i = 0; i<dataJSON.length; i++){
+                $("#listContainer").append(`
+                    <div class="content-prj">
+                        <h2>`+dataJSON[i].name+`</h2>
+                        <h3>`+dataJSON[i].path+`</h3>
+                    </div> 
+                `);
+             }
             });
         }
         
@@ -98,6 +111,7 @@
           <section id="projectsDrawer">
                 <h1>Your Projects</h1>
                 <button id="createNewProject">Create a new app</button>
+                <section id="listContainer"></section>
           </section>
       </section>
       <section id="secondScreen">

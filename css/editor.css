@@ -103,3 +103,22 @@ td {
     padding: 5px;
     border-radius: 5px;
 }
+
+#loadingPanel{
+    position:absolute; 
+    width:100%;
+    height:100%; 
+    top: 0;
+    left:0;
+    background:black;
+    opacity:0.9;
+    z-index:20;
+}
+
+#loadingPanel h1{
+    color: white;
+    text-align: center;
+    position: relative;/
+    top: 200px;
+    font-size: 80px;
+}

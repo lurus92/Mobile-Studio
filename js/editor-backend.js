@@ -25,7 +25,7 @@ function buildNewProject(config){
     var cmdBuildPrj = '/usr/local/bin/tns create '+name+' --ng';        //TODO: CHECK FOR WIN
 
     /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT****/
-    childProcess.execSync(cmdBuildPrj, {cwd: path}, function(error, stdout, stderr) {
+   /* childProcess.execSync(cmdBuildPrj, {cwd: path}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
         //$("#loadingPanel").hide();
@@ -40,7 +40,7 @@ function buildNewProject(config){
 
     buildManifest(path,name);
     saveProjectToMainScreen(path,name);
-
+*/
     /*
     CHECK THIS FUNCTION IF YOU WANT TO DISPLAY A PROPER CONSOLE
     childProcess.stdout.on('data', function(data) {
@@ -80,7 +80,7 @@ function saveProjectToMainScreen(path, namePrj){
     appDetails.name = namePrj;
     appDetails.path = path;
     appDetailsJSON = JSON.stringify(appDetails);
-    fs.writeFile(homePath+"/history", appDetailsJSON, function(err) {
+    fs.appendFile(homePath+"/history", appDetailsJSON, function(err) {
     if(err) {
         return console.log(err);
     }
