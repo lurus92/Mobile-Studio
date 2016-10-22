@@ -125,6 +125,8 @@
 
                                                         </div>`;
                                       //var infoPanel = "<h1>Ciaone</h1>";
+                                      $(".infoHovering").remove();
+
                                       $("#mainContent").append(infoPanel);
                                   }else{
                                       var infoPanel =   `<div class="infoHovering" style="top:`+sender.target.style.top+`; left: `+(parseInt(sender.target.style.left)+400)+`;">
@@ -139,6 +141,7 @@
 
                                                                     </div>`;
                                                   //var infoPanel = "<h1>Ciaone</h1>";
+                                                  $(".infoHovering").remove();
                                                   $("#mainContent").append(infoPanel);
                                   }
                                

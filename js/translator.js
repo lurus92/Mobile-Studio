@@ -14,7 +14,11 @@ function translate(application){
 function translateScreen(screen){
     switch (screen.layout){
         case "defaultLayout":
-            return "<Page><StackLayout>"+translateComponents(screen)+"</StackLayout></Page>";
+            return `<Page>
+                        <StackLayout>
+                            `+translateComponents(screen)+`
+                        </StackLayout>
+                    </Page>`;
             //return concat("x","y");
             break;
         /*default:
@@ -26,10 +30,13 @@ function translateScreen(screen){
 function translateComponents(screen){
     //For each component we must do a translation
     var componentsTranslated = "";
-    for (var i = 0; i<screen.components.length; i++){
+    //for (var i = 0; i<screen.components.length; i++){
+    for (var i in screen.components){
         switch (screen.components[i].type){
             case "label":
-                componentsTranslated += "<Label id='"+screen.components[i].id+"' text='"+screen.components[i].text+"' />";
+                componentsTranslated += `
+                        <Label id="`+screen.components[i].id+`" text="`+screen.components[i].text+`" />
+                        `;
                 break;
             default: componentsTranslated+="";    
         }
