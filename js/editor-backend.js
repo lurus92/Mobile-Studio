@@ -1,3 +1,5 @@
+/**************FUNCTIONS OF EDITOR THAT ACCESS TO THE FILE SYSTEM*****************/
+
 var fs = require('fs');
 var path = require('path');
 
@@ -41,8 +43,10 @@ function buildNewProject(config){
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
     });
+    
 
-    /*Build directory structure //UNCOMMENT TO DELETE DEFAULT TEMPLATE FILES
+    //ELIMINATION OF DEFAULT TEMPLATES. WATCH OUT WHAT YOU DELETE!
+    /*Build directory structure
     childProcess.execSync("rm -r app && mkdir app",{cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
@@ -51,12 +55,10 @@ function buildNewProject(config){
 
     buildManifest();
     saveProjectToMainScreen();
-
-    /*
-    CHECK THIS FUNCTION IF YOU WANT TO DISPLAY A PROPER CONSOLE
-    childProcess.stdout.on('data', function(data) {
-        console.log(data); 
-    });*/
+    
+    
+    
+    //OLD FILE VISUALIZATION
     /*
     files = getFiles(path+"/"+name);
 
@@ -108,18 +110,29 @@ function buildNewProject(config){
      }
 }
 
-function runForIOS(){
+function run(mode){
     var sys = require('util'),
         childProcess = require('child_process'),
         fixPath = require('fix-path');
     fixPath();      //Required to reset path and execute commands
-    var cmdRunPrj = '/usr/local/bin/tns run ios --emulator'; 
+    var cmdRunPrj
+    switch(mode){
+        case "iosEmulator": cmdRunPrj = '/usr/local/bin/tns run ios --emulator';
+            break;
+        case "iosReal": cmdRunPrj = "to DO!"
+            break;
+        case "androidEmulator": cmdRunPrj = '/usr/local/bin/tns run android --emulator';
+            break;
+        case "androidReal": cmdRunPrj = '/usr/local/bin/tns run android';
+            break;
+        default: alert("Missing running mode");
+    }
+    //var cmdRunPrj = '/usr/local/bin/tns run ios --emulator'; 
     childProcess.execSync(cmdRunPrj, {cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
         //$("#loadingPanel").hide();
     });
-    
 }
          
 
@@ -152,4 +165,21 @@ function saveProjectToMainScreen(){
     }
     console.log("New Project added");
 });    
+}
+
+
+function storeModel(){
+    //Easy task: stringify everything
+    toStore = projectName + "|" + workingPath + "|" + JSON.stringify(application);
+    var rootPrj = workingPath+"/"+projectName;
+    fs.writeFile(rootPrj+projectName+".msa", toStore, function(err) {
+        if(err) {
+            return console.log(err);
+        }
+        console.log("Mobile Studio Application file written");
+    });   
+}
+
+function restoreFromModel(){
+    //TANTA ROBA QUI
 }

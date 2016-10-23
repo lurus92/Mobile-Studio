@@ -3,8 +3,8 @@
 
 function translate(application){
     //For each screen we have to build a NS page
-    var pageArray = new Array   //we should create a new File for each page
-    for (var i = 0; i<application.screens.length; i++){
+    var pageArray = new Array ();  //we should create a new File for each page
+    for (var i in application.screens){
         pageArray.push(translateScreen(application.screens[i]));
     }
     return pageArray;

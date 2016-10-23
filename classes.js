@@ -1,6 +1,7 @@
 class Application {
     constructor(){
-        this.screens= new Array();
+        this.screens = {};
+        this.numberOfScreens = 0;
     }
 }
 
@@ -9,7 +10,8 @@ class Screen {
     constructor(id){
         this.id=id;
         this.customProperty= 1;         //example of property;
-        this.components = new Array();
+        this.components = {};
+        this.numberOfComponents = 0;
         
         this.layout = "defaultLayout";
         

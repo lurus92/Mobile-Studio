@@ -8,7 +8,7 @@ body{
 
 nav{
     color: white;
-    background-color: black;
+    background-color: #2f2f2f;
     height: 32px;
     width: 100%;
     line-height: 32px;
@@ -24,10 +24,10 @@ nav button{
 }
 
 table{
+    color: white;
     left: 0;
     top:32px;
     width: 100%;
-    height: 100%;                /*TODO: NOT CORRECT*/
     border-collapse: collapse;
 }
 
@@ -35,27 +35,75 @@ td {
     vertical-align: top;
 }
 
-#filePanel{
+#propertyPanel{
     background-color: #2F2F2F;
-    width: 200px;
+    width: 200px;    /*WE NEED TO RESIZE IT?*/
+    padding: 10px;
     height: 100%;
     color: white;
 }
 
+#propertyPanel h1{
+    font-weight: initial;
+    margin-bottom: 0;
+}
+
+#propertyPanel h3{
+    font-weight: 100;
+    margin-top: 0;
+}
+
+#propertyPanel h2{
+    font-size: small;
+    background: #f2f2f2;
+    margin-left: -20px;
+    width: 117%;
+    box-shadow: black;
+    color: black;
+    padding-left: 20px;
+    font-weight: normal;
+}
+
+#propertyPanel table{
+    font-size: smaller;
+    white-space: nowrap;
+}
+
+#propertyPanel input{
+    border-radius: 2px;
+    border-style: none;
+    padding: 2px;
+}
+
+#propertyPanel input[type="submit"]{
+    background-color: red;
+    color: white;
+    width: 100%;
+    margin-top: 10px;
+    font-size: small;
+    border-style: solid;
+    border-width: 0px;
+    padding: 4px;
+}
+
 #componentsPanel{
-    background-color: #D8D8D8;
+    background-color: #2f2f2f;
     width: 200px;
     height: 100%;
     color: white;
     text-align: center;
+    /*overflow-y: scroll;
+    overflow-x: hidden;*/
+    
 }
 
 #mainContent{
     /*background-color: red;*/
     /*z-index: -1;*/
-    background-size: 20px 20px;
-    background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);
+    /*background-size: 20px 20px;
+    background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);*/
     overflow: scroll;
+    background-color: #f2f2f2
 
 }
 
@@ -63,6 +111,11 @@ td {
     position:absolute;
     width:350;
     height: 500;
+}
+
+.window span{
+    position: absolute;
+    top: -20px;
     
 }
 
@@ -70,21 +123,21 @@ td {
     background:white;
     color:lightgray;
     border-style: solid;
-    border-width: 2px;
-    border-color: lightblue;
+    border-width: 1px;
+    border-color: lightgray;
 }
 
 .component{
-    width: 70px;
-    height: 100px;
-    display: inline-block;
-    background-color: green;
+    width: 97%;
+    margin-bottom: 1px;
+    height: 60px;
+    background-color: #F2F2F2;
     margin: auto;
     z-index: 5;
 }
 
 .drawn-element:active{
-    border-color: blue;
+    border-color: gray;
 }
 
 .infoHovering{
