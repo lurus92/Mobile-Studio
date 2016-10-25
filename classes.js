@@ -12,8 +12,8 @@ class Screen {
         this.customProperty= 1;         //example of property;
         this.components = {};
         this.numberOfComponents = 0;
-        
         this.layout = "defaultLayout";
+        this.style = "";
         
         
     }
@@ -24,6 +24,13 @@ class Component {
         this.id = id;
         this.type = type;
         this.customProperty= 1;         //example of property;
+        this.specificAttributes = {}
+        this.style = "";
+        //Specific attributes for specific components
+        switch (type){
+            case "label": this.specificAttributes["text"] = "label";
+                break;
+        }
     }
 }
 

@@ -14,7 +14,7 @@ function translate(application){
 function translateScreen(screen){
     switch (screen.layout){
         case "defaultLayout":
-            return `<Page>
+            return `<Page id="`+screen.id+`">
                         <StackLayout>
                             `+translateComponents(screen)+`
                         </StackLayout>
@@ -35,11 +35,33 @@ function translateComponents(screen){
         switch (screen.components[i].type){
             case "label":
                 componentsTranslated += `
-                        <Label id="`+screen.components[i].id+`" text="`+screen.components[i].text+`" />
+                        <Label id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
                         `;
                 break;
             default: componentsTranslated+="";    
         }
     }
     return componentsTranslated;
-}                
+} 
+
+
+function translateScreenStyle(screen){
+    var allStyles = $("#"+screen.id+"").attr("style");
+    //We have ALL the styles of the window, also the unnecessary ones needed to position itself in the editor
+    var allStyles = allStyles.split(";");
+    var usefulStyles = "";
+    //The useful styles starts at 6th position
+    for (var i = 6; i<allStyles.length-1; i++) usefulStyles+= (allStyles[i]+";");
+    var styleWindow=`#`+screen.id+`{
+                `+usefulStyles+`
+            }`;
+    var styleComponents = "";
+    for (var i in screen.components){
+        styleComponents +=`
+            #`+i+`{
+                `+$("#"+i+"").attr("style")+`
+            }`;
+    }
+    return styleWindow+`
+            `+styleComponents;
+}

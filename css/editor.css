@@ -175,3 +175,24 @@ td {
     top: 200px;
     font-size: 80px;
 }
+
+#consoleContainer{
+    background-color: #2f2f2f;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    height: 30%;
+    padding: 0;
+    left: 0;
+    z-index: 20;
+}
+
+#console{
+    width: 98%;
+    background-color: black;
+    /* margin: 3px; */
+    height: 88%;
+    overflow-y: auto;
+    margin: auto;
+    margin-top: 5px;
+}

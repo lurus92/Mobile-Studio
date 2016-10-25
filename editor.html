@@ -78,128 +78,136 @@
                 console.log("DO TRANSLATION HERE!")
             }
             
-            
-            function buildPropertiesPanel(winId,compId){
-                var styles = `<section style="max-height:30%; overflow: scroll">
-                                                        <table>
-                                                            <tbody>`;
-                                      for(var i=0;i<supportedCSS.length;i++){
-                                          var property = supportedCSS[i];
-                                          var propertyValue;
-                                          if(!compId)  propertyValue = $("#"+application.screens[winId].id).css(property);
-                                          else  propertyValue = $("#"+application.screens[winId].components[compId].id).css(property);
-                                          styles += `<tr>
-                                                        <td>`+property+`</td>
-                                                        <td style="float:right;">
-                                                            <input type="text" value='`+propertyValue+`'/>
-                                                        </td>
-                                                    </tr>`;
-                                      }
-                                      styles +=        `</tbody>
-                                                    </table>
-                                                </section>`;
-                                      var attributeToSearch;
-                                      if (!compId) attributeToSearch = application.screens[winId];
-                                      else attributeToSearch = application.screens[winId].components[compId];
-                                      
-                                      var attributes = `<table>
-                                                <tbody>
-                                                    <tr>
-                                                        <td> ID </td>
-                                                        <td style="float:right;">
-                                                            <input type="text" value="`+attributeToSearch.id+`"/>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td> Class </td>
-                                                        <td style="float:right;"><input type="text" placeholder="unset" /></td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td> Layout </td>
-                                                        <td style="float:right;">
-                                                            <input type="text" value="`+attributeToSearch.layout+`"/>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>`;
-                                      
-                                      var actions = `<table>
-                                                <tbody>
-                                                    <tr>
-                                                        <td> onclick </td>
-                                                        <td style="float:right;"><input type="button" /></td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>`
-                                      
-                                      var panelDetailContent = `
-                                            <h1>`+attributeToSearch.id+`</h1>
-                                            <h3> Window </h3>
-                                            
-                                            <h2> Attributes </h2>
-                                        `+attributes+`
-                                            <h2> Styles </h2>
-                                        `+styles+`
-                                            <h2> Actions </h2>
-                                        `+actions+`
-                                             <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`',null);">`;
-
-                                      $("#propertyPanel").html(panelDetailContent); 
+            function setNewCss(event, attributeID, property){
+                $("#"+attributeID+"").css(""+property+"",""+this.value+"");
+                //console.log(this);
             }
-
-
             
-            function initialization(config){        //config[1]: working path [it is in 0 position]
-                
-                buildNewProject(config);        //Check if we need to create a new project
-                $("#loadingPanel").hide();
-                
-                
-                
-                /*****************************FRONT END*******************************/
-                //$("#filePanel").append(config[1]);
-                
-                for(var i=0; i<10; i++){
-                    if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>SCREEN</div>");
-                    if (i==1) $("#componentsPanel").append("<div class='component ui-widget-content'>TEXT</div>");
-                    else $("#componentsPanel").append("<div class='component ui-widget-content'>"+i+"</div>");
+            function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //compWin = not defined if Window, id if comp
+                switch(attrType){
+                    case "id":{
+                        newId = this.value;
+                        $("#"+oldAttr).attr("id",newId);
+                        if(!compWin){
+                            if (application.screens[""+newId+""]){
+                                alert("You must use an unique id!");
+                                return;
+                            }
+                            application.screens[""+oldAttr+""].id = ""+newId+"";
+                            application.screens[""+newId+""] = application.screens[""+oldAttr+""];
+                            delete application.screens[""+oldAttr+""];
+                        }else{
+                            if (application.screens[""+winId+""].components[""+newId+""]){
+                                alert("You must use an unique id!");
+                                return;
+                            }
+                            application.screens[""+winId+""].components[""+oldAttr+""].id = ""+newId+"";
+                            application.screens[""+winId+""].components[""+newId+""] = application.screens[""+winId+""].components[""+oldAttr+""];
+                            delete application.screens[""+winId+""].components[""+oldAttr+""];
+
+                        }
+                        $("#titlePanelDetail").val(newId);
+                    }
+                        break;
+                    case "class": //similar to ID
+                        break;
+                    case "other":{
+                        if(property!="text") $("#"+oldAttr).attr(""+property+"",this.value);    //CHECK THIS
+                        else $("#"+oldAttr).text(this.value);
+                        application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.value;
+
+                    }
+                        
                 }
                 
+            }
+            
+            
+            function buildPropertiesPanel(winId,compId){
+              var styles = `<section style="max-height:30%; overflow: scroll">
+                                                        <table>
+                                                            <tbody>`;
                 
-                $( ".component" ).draggable({
-                    opacity: 0.7,
-                    helper: "clone",
-                    //grid: [ 20, 20 ]
-                });
-                
-                
-                
-                $( "#mainContent" ).droppable({
-                  drop: function( event, ui ) {
-                      /*console.log(ui);
-                      console.log(this);
-                      console.log(event);*/
-                      
-                      switch (ui.draggable[0].innerText){
-                          case "SCREEN": {
-                              var leftOffset = ui.position.left - $("#componentsPanel").width();
-                              var newId = application.numberOfScreens;
-                              var newScreen = new model.Screen("win"+newId);
-                              //application.screens.push("win"+newId);
-                              //TODO: Analyze following
-                              //application.screens.push(newScreen);
-                              application.screens["win"+newId] = newScreen;
-                              application.numberOfScreens++;
-                              var firstWindowString = ""; 
-                              if (application.numberOfScreens==1) firstWindowString = "(Starting Window)";
-                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element' style='top:`+ui.position.top+`; left: `+leftOffset+`;'>
-                                                  <span>win`+newId+` `+firstWindowString+`</span>
-                                                  </div>`;
-                              //$(sampleWindow).appendTo($(this));
-                              $("#mainContent").append(sampleWindow);
-                              $(".window").draggable();
+              var attributeToSearch;
+              if (!compId) attributeToSearch = application.screens[winId];
+              else attributeToSearch = application.screens[winId].components[compId];
+
+              for(var i=0;i<supportedCSS.length;i++){
+                  var property = supportedCSS[i];
+                  var propertyValue = $("#"+attributeToSearch.id).css(property);
+                  styles += `<tr>
+                                <td>`+property+`</td>
+                                <td style="float:right;">
+                                    <input type="text" value='`+propertyValue+`' onchange="setNewCss.call(this,event,'`+attributeToSearch.id+`','`+property+`');"/>
+                                </td>
+                            </tr>`;
+              }
+              styles +=        `</tbody>
+                            </table>
+                        </section>`;
+
+
+              var attributes = `<table>
+                        <tbody>
+                            <tr>
+                                <td> ID </td>
+                                <td style="float:right;">
+                                    <input type="text" value="`+attributeToSearch.id+`" onchange="setNewAttr.call(this,event,'id','`+attributeToSearch.id+`',`+compId+`,`+winId+`)"/>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td> Class </td>
+                                <td style="float:right;"><input type="text" placeholder="unset" /></td>
+                            </tr>`;
+              if (!compId) attributes+=`              
+                            <tr>
+                                <td> Layout </td>
+                                <td style="float:right;">
+                                    <input type="text" value="`+attributeToSearch.layout+`"/>
+                                </td>
+                            </tr>`; //Insert here other window-specific attributes
+                else for(var i in attributeToSearch.specificAttributes){
+                    attributes+=`              
+                            <tr>
+                                <td>`+i+`</td>
+                                <td style="float:right;">
+                                    <input type="text" value="`+attributeToSearch.specificAttributes[i]+`" onchange="setNewAttr.call(this,event,'other','`+attributeToSearch.id+`','`+compId+`','`+winId+`','`+i+`')"/>
+                                </td>
+                            </tr>`;
+                }
+              attributes +=`
+                        </tbody>
+                    </table>`;
+
+              var actions = `<table>
+                        <tbody>
+                            <tr>
+                                <td> onclick </td>
+                                <td style="float:right;"><input type="button" /></td>
+                            </tr>
+                        </tbody>
+                    </table>`
+
+              var panelDetailContent = `
+                    <h1 id="titlePanelDetail">`+attributeToSearch.id+`</h1>
+                    <h3>`+attributeToSearch.type+`</h3>
+
+                    <h2> Attributes </h2>
+                `+attributes+`
+                    <h2> Styles </h2>
+                `+styles+`
+                    <h2> Actions </h2>
+                `+actions+`
+                     <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`',null);">`;
+
+              $("#propertyPanel").html(panelDetailContent); 
+            }
+            
+            
+            function initializeWindowEvents(){
+                $(".window").draggable();
                               
-                              //InfoBox
+                              //DetailPanel
                               $(".window").click(function(sender){
                                   if (sender.target.id.substring(0,3)=="win"){
                                       buildPropertiesPanel(""+sender.target.id+"",null);
@@ -237,7 +245,56 @@
                                               }
                                      
                                   }
-                      });    
+                      }); 
+            }
+
+
+            
+            function initialization(config){        //config[1]: working path [it is in 0 position]
+                existingPrj = config[3];
+                if (!existingPrj) buildNewProject(config);  
+                else restoreProjectFromFile(config[2],config[1]);       //Check Indexes
+                //$("#loadingPanel").hide();
+                
+                
+                
+                /*****************************FRONT END*******************************/
+                //$("#filePanel").append(config[1]);
+                
+                for(var i=0; i<10; i++){
+                    if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>SCREEN</div>");
+                    else if (i==1) $("#componentsPanel").append("<div class='component ui-widget-content'>TEXT</div>");
+                    else $("#componentsPanel").append("<div class='component ui-widget-content'>Component "+i+"</div>");
+                }
+                
+                
+                $( ".component" ).draggable({
+                    opacity: 0.7,
+                    helper: "clone",
+                });
+                
+                
+                
+                $( "#mainContent" ).droppable({
+                  drop: function( event, ui ) {
+
+                      
+                      switch (ui.draggable[0].innerText){
+                          case "SCREEN": {
+                              var leftOffset = ui.position.left - $("#componentsPanel").width();
+                              var newId = application.numberOfScreens;
+                              var newScreen = new model.Screen("win"+newId);
+                              application.screens["win"+newId] = newScreen;
+                              application.numberOfScreens++;
+                              var firstWindowString = ""; 
+                              if (application.numberOfScreens==1) firstWindowString = "(Starting Window)";
+                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element' style='top:`+ui.position.top+`; left: `+leftOffset+`;'>
+                                                  <span>win`+newId+` `+firstWindowString+`</span>
+                                                  </div>`;
+                              //$(sampleWindow).appendTo($(this));
+                              $("#mainContent").append(sampleWindow);
+                              initializeWindowEvents();
+                                 
                       //ui.draggable.clone().appendTo($(this)).draggable();
 
                   }
@@ -246,25 +303,36 @@
                 
                 
             }
-                
-           
-            
+            /*
+            function notifier(event){
+                switch(event){
+                    case "buildSucceeded": new Notification("Build Succeeded","");
+                }
+            }*/
+                 
         </script>
     </head>
     <body>
        <nav>
            Mobile Studio
-           <button id="androidGo">Compile for Android</button>
-           <button id="iOSGo">Compile for iOS</button>
+           <button id="saveButton" onclick="storeModel();">Save Project</button>
+           <button id="compileButton" onclick="compileForNS();">Compile Project</button>
+           <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>
+           <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
        </nav>
        <section id="loadingPanel">
            <h1 style="color:white;">LOADING</h1>
+       </section>
+       <section id="consoleContainer" style="display:none;">Console
+           <div id="console">Console Started</div>
        </section>
         <table id="mainTable" style="position:absolute; height:100%;">
             <tr>
                 <td id="componentsPanel"></td>
                 <td id="mainContent" style="position:relative;"> <!--TODO: rename in mainContentContainer
                      <section id="realMainContent" style="background-color:red; width:100%; height:100%;"></section>        -->
+
+                </td>
                 <td id="propertyPanel"><small>Properties</small><br></td>
 
                 </td>

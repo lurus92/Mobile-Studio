@@ -35,6 +35,7 @@ function buildNewProject(config){
         console.log("cmd: " + error + " : "  + stdout);
         //$("#loadingPanel").hide();
     });
+
     
     /****ADDING IOS THING********/
     var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
@@ -54,9 +55,9 @@ function buildNewProject(config){
     });*/
 
     buildManifest();
-    saveProjectToMainScreen();
+   // saveProjectToMainScreen();
     
-    
+    $("#loadingPanel").hide();
     
     //OLD FILE VISUALIZATION
     /*
@@ -72,7 +73,7 @@ function buildNewProject(config){
 
  function compileForNS(){
      var translation = translate(application);
-     var startScreen = application.screens[0].id;       //TODO: improve with name, not id
+     var startScreen = application.screens["win0"].id;       //TODO: improve with name, not id
      var appJS = `var application = require("application");
                   application.start({ moduleName: "`+startScreen+`" });`;
      var rootPrj = workingPath+"/"+projectName;
@@ -93,7 +94,8 @@ function buildNewProject(config){
                         page.bindingContext = createViewModel();
                     }
                     exports.onNavigatingTo = onNavigatingTo;`;
-         var css = null; //put CSS
+         var css = translateScreenStyle(application.screens[i]); //put CSS
+         var css = css.replace(/px/g,'');   //HERE YOU SHOULD DELETE PX/EM/OTHER UNITS
          //File writing
          fs.writeFile(rootPrj+"/app/"+application.screens[i].id+".js", js, function(err) {
             if(err) {
@@ -106,6 +108,12 @@ function buildNewProject(config){
                 return console.log(err);
             }
             console.log("XML of screen: "+application.screens[i].id+" written");
+         });       
+         fs.writeFile(rootPrj+"/app/"+application.screens[i].id+".css", css, function(err) {
+            if(err) {
+                return console.log(err);
+            }
+            console.log("CSS of screen: "+application.screens[i].id+" written");
          });       
      }
 }
@@ -128,10 +136,17 @@ function run(mode){
         default: alert("Missing running mode");
     }
     //var cmdRunPrj = '/usr/local/bin/tns run ios --emulator'; 
-    childProcess.execSync(cmdRunPrj, {cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
+    var cp = childProcess.exec(cmdRunPrj, {cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
         //$("#loadingPanel").hide();
+    });
+    cp.stdout.on('data', function(data) {
+        console.log(data); 
+        $("#console").append(data);
+        $("#console").append("<br/>");
+        $("#console").scrollTop = $("#console").scrollHeight;
+        if(data=="** BUILD SUCCEEDED **") new Notification("Build Succeeded","");
     });
 }
          
@@ -169,17 +184,65 @@ function saveProjectToMainScreen(){
 
 
 function storeModel(){
+    //Save CSS for screens
+    for (var i in application.screens){
+        application.screens[""+i+""].style = $("#"+i+"").attr("style");
+            //Save CSS for components
+            for (var j in application.screens[""+i+""].components){
+                application.screens[""+i+""].components[""+j+""].style = $("#"+j+"").attr("style");
+            }
+    }
+
     //Easy task: stringify everything
     toStore = projectName + "|" + workingPath + "|" + JSON.stringify(application);
-    var rootPrj = workingPath+"/"+projectName;
+    var rootPrj = workingPath+"/"+projectName+"/";
     fs.writeFile(rootPrj+projectName+".msa", toStore, function(err) {
         if(err) {
             return console.log(err);
         }
         console.log("Mobile Studio Application file written");
-    });   
+    }); 
+    
+    if(!existingPrj) saveProjectToMainScreen();     //ELSE, we could think to put at top, save timestamp, etc.
+    
+    alert("Project Saved");
 }
 
-function restoreFromModel(){
-    //TANTA ROBA QUI
+function restoreProjectFromFile(path,prjName){
+      fs.readFile(path+"/"+prjName+"/"+prjName+".msa", 'utf8', function (err,data) {
+      if (err) {
+          alert("File Not Found");
+        return console.log(err);
+      }
+      restoreFromString(data);
+    });   
+
+}
+
+function restoreFromString(msaString){        //msaString is the string inside the file
+    projectName = msaString.split("|")[0];
+    workingPath = msaString.split("|")[1];
+    var payload = msaString.split("|")[2];
+    application = JSON.parse(payload);      //Model rebuilt
+    //We should rebuild the apps
+    for (var i in application.screens){
+        var newWindow = `<div id='`+i+`' class='window drawn-element'>
+                            <span>`+i+`</span>  <!--INSERT FIRST WINDOW TEXT -->
+                         </div>`;
+        $("#mainContent").append(newWindow);
+        $("#"+i).attr("style",application.screens[i].style);
+        initializeWindowEvents();
+        for (var j in application.screens[i].components){
+            var componentHTML = "";
+            switch (application.screens[i].components[j].type){
+                case "label":{
+                    var sampleTextHTML = "<div id='"+application.screens[i].components[j].id+"' class='drawn-element label'>"+application.screens[i].components[j].specificAttributes['text']+"</div>";
+                    $("#"+i).append(sampleTextHTML);
+                }
+            }
+            $("#"+j).attr("style",application.screens[i].components[j].style);
+
+        }
+    }
+    $("#loadingPanel").hide();
 }

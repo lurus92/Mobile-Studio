@@ -39,20 +39,21 @@
         function retriveProjects(){
             const {app} = require('electron').remote;
             var homePath = app.getPath("userData");
-            fs = require('fs')
+            fs = require('fs');
+            console.log(homePath+"/history");
             fs.readFile(homePath+"/history", 'utf8', function (err,data) {
               if (err) {
                 return console.log(err);
               }
               console.log("now showing raw data ");
-              var strData = "["+data+"]";
+               strData = "["+data+"]";
               //console.log(strData);
-              strData = strData.replace("}{","},{");
+              strData = strData.replace(/}{/g,'},{');
               var dataJSON = JSON.parse(strData);
               /*console.log("now showing parsed data");
               console.log(dataJSON);*/
-              //$("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
-              //$("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");
+              /*$("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
+              $("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");*/
               for(var i = 0; i<dataJSON.length; i++){
                 $("#listContainer").append(`
                     <div class="content-prj">
@@ -60,7 +61,11 @@
                         <h3>`+dataJSON[i].path+`</h3>
                     </div> 
                 `);
-             }
+               }
+              $(".content-prj").click(function(){
+                  const {ipcRenderer} = require('electron');
+                  ipcRenderer.send('asynchronous-message', ["startEditor", $(this).find("h2").text(), $(this).find("h3").text(), true]);
+              });
             });
         }
         
@@ -79,12 +84,12 @@
         
         function openEditorAndClose(){
             const {ipcRenderer} = require('electron');
-            if(!workingPath) alert("Please specify a valid folder");
+            if(!workingPath){ alert("Please specify a valid folder"); return; }
             projectName = $("#nameProject").val();
             if (projectName=="") alert("Please insert a name for the project");
             /*var fs = new FileSystemManager(workingPath);
             alert(fs.getWorkingPath);*/
-            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath, projectName]);
+            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath, projectName, false]);
         }
         
         
