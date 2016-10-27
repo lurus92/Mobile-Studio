@@ -33,11 +33,32 @@ function translateComponents(screen){
     //for (var i = 0; i<screen.components.length; i++){
     for (var i in screen.components){
         switch (screen.components[i].type){
-            case "label":
+            case "Label":
                 componentsTranslated += `
                         <Label id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
                         `;
                 break;
+            case "Button":
+                componentsTranslated += `
+                        <Button id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        `;
+                break;
+            case "TextField": 
+                componentsTranslated += `
+                        <TextField id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        `;
+                break;
+            case "TextView": componentsTranslated += `
+                        <TextField id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        `;
+                break;
+            case "SearchBar": componentsTranslated += `
+                        <SearchBar id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        `;
+                break;
+            case "Switch": componentsTranslated += `
+                        <SearchBar id="`+screen.components[i].id+`" checked="`+screen.components[i].specificAttributes["set"]+`" />
+                        `; 
             default: componentsTranslated+="";    
         }
     }
@@ -57,6 +78,7 @@ function translateScreenStyle(screen){
             }`;
     var styleComponents = "";
     for (var i in screen.components){
+        if(!$("#"+i+"").attr("style")) continue;
         styleComponents +=`
             #`+i+`{
                 `+$("#"+i+"").attr("style")+`

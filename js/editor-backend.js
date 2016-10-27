@@ -234,15 +234,42 @@ function restoreFromString(msaString){        //msaString is the string inside t
         initializeWindowEvents();
         for (var j in application.screens[i].components){
             var componentHTML = "";
+            var id = application.screens[i].components[j].id;
             switch (application.screens[i].components[j].type){
-                case "label":{
-                    var sampleTextHTML = "<div id='"+application.screens[i].components[j].id+"' class='drawn-element label'>"+application.screens[i].components[j].specificAttributes['text']+"</div>";
-                    $("#"+i).append(sampleTextHTML);
+                case "Label":
+                    componentHTML = "<div id='"+id+"' class='drawn-element label'>"+application.screens[i].components[j].specificAttributes['text']+"</div>";
+                    break;
+                case "Button":
+                      componentHTML = "<button id='"+id+"' class='drawn-element button' value='"+application.screens[i].components[j].specificAttributes['text']+"'></button>";
+                      break;
+                  case "TextField":
+                      componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
+                      break;
+                  case "TextView": componentHTML="<div>Cos'è una TextView?</div>";
+                      break;
+                  case "SearchBar":
+                      componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
+                      break;
+                  case "Switch":{
+                      var checked = "";
+                      if (application.screens[i].components[j].specificAttributes['set']) checked='checked="checked"'
+                      componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch' "+checked+"/>";
+                      }
+                      break;
+                  case "Slider":
+                      componentHTML = "<div>Non so cosa sia</div>";
+                      break;
+                  case "Progress":
+                      componentHTML = "<progress id='"+id+"' class='drawn-element progress' value='"+application.screens[i].components[j].specificAttributes['value']+"/>";
+                      break;
+                default: 
+                      componentHTML = "<div> Couldn't restore this element </div>";
                 }
+                $("#"+i).append(componentHTML);
+
             }
             $("#"+j).attr("style",application.screens[i].components[j].style);
 
         }
-    }
     $("#loadingPanel").hide();
 }

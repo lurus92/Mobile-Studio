@@ -26,6 +26,7 @@
             require('./js/jquery-ui.min.js');
             require('./js/jquery.ui.ruler.js');
             require('./js/colResizable-1.6.min.js');
+            //require('./js/jquery.zoomooz.js');
             var model = require('./classes.js');
             let application = new model.Application(); 
             $(window).ready(function() {
@@ -41,6 +42,30 @@
                 $( "#propertyPanel" ).hide();
 
                 $( "#mainContent" ).ruler();
+                
+                $("#mainContent").css("zoom",1);
+
+                //IMPROVE ZOOM
+                $( "#mainContent").on("mousewheel", function(e) {
+                    if (e.ctrlKey) {
+                        e.preventDefault();
+                        e.stopImmediatePropagation();
+                        console.log("scrolling!");
+                        console.log(e);
+                        // perform desired zoom action here
+                        var newZoom = 1;
+                        if (e.originalEvent.wheelDelta>0)
+                          //  $(this).zoomTo({targetsize:1.25, duration:600});    //ZOOMOOZ
+                            newZoom = parseFloat($("#mainContent").css("zoom"))*1.1;
+                        else
+                           // $(this).zoomTo({targetsize:0.75, duration:600});     //ZOOMOOZ
+                            newZoom = parseFloat($("#mainContent").css("zoom"))*0.9;
+                        $(this).animate({'zoom':newZoom},1);
+                        console.log("newZoom: "+newZoom+" wheelData: "+e.originalEvent.wheelDelta);
+
+                    }
+                });
+
                   
                 //Gather data from main (FOR NOW ONLY PATH)
                 const {ipcRenderer} = require('electron');
@@ -222,27 +247,50 @@
                               $(".window").droppable({
                                   drop: function( event, ui ) {
                                         console.log("Dropping element!");
-                                        
-                                          switch (ui.draggable[0].innerText){
-                                              case "TEXT": {
-                                                  //Create Graphics
-                                                  //TODO: Create better ID!!!
-                                                  var id = "label"+application.screens[this.id].numberOfComponents;
-                                                  var sampleTextHTML = "<div id='"+id+"' style='border-width: 0' class='drawn-element label'>Label</div>";
-                                                  $(this).append(sampleTextHTML);
-                                                  //Update Model
-                                                  //Setting a property via constructor
-                                                  var component = new model.Component (id,"label");
-                                                  //Creation of an attribute at run time:
-                                                
-                                                  component.text = "Label"
-                                                  //application.screens[this.id].components.push(component);
-                                                  application.screens[this.id].components[""+id+""] = component;
-                                                  application.screens[this.id].numberOfComponents++;
-                                                  //console.log(this.id);
-                                                  }
+                                        var id = "";
+                                        var componentHTML = "";
+                                        var type = ui.draggable[0].innerText;
+                                        //TODO: Create better ID
+                                        id = type+application.screens[this.id].numberOfComponents;
+                                        var layout = application.screens[this.id].layout;
+                                        switch (type){
+                                              case "Label": 
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element label  "+layout+"'>Label</div>";
+                                                  break;        
+                                              case "Button":
+                                                  componentHTML = "<button id='"+id+"' class='drawn-element button "+layout+"' value='Button'></button>";
                                                   break;
-                                              }
+                                              case "TextField":
+                                                  componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield "+layout+"' value='Insert Text Here'/>";
+                                                  break;
+                                              case "TextView":
+                                                  componentHTML="<div>Cos'è una TextView?</div>";
+                                                  break;
+                                              case "SearchBar":
+                                                  componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar "+layout+"' value='Search Here'/>";
+                                                  break;
+                                              case "Switch":
+                                                  componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch "+layout+"'/>";
+                                                  break;
+                                              case "Slider":
+                                                  componentHTML = "<div>Slider</div>";
+                                                  break;
+                                              case "Progress":
+                                                  componentHTML = "<progress id='"+id+"' class='drawn-element progress "+layout+"'/>";
+                                                  break;
+
+                                              default:
+                                                  componentHTML = "<div>Component Unavailable</div>";
+                                      
+                                      }
+                                      $(componentHTML).addClass(application.screens[this.id].layout);
+                                      $(this).append(componentHTML);
+                                      //Update Model
+                                      //Setting a property via constructor
+                                      var component = new model.Component (id,type);
+                                      //Creation of an attribute at run time:
+                                      application.screens[this.id].components[""+id+""] = component;
+                                      application.screens[this.id].numberOfComponents++;
                                      
                                   }
                       }); 
@@ -261,10 +309,13 @@
                 /*****************************FRONT END*******************************/
                 //$("#filePanel").append(config[1]);
                 
-                for(var i=0; i<10; i++){
-                    if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>SCREEN</div>");
+                var components = ["Screen","Label","Button","TextField","TextView","SearchBar","Switch","Slider","Progress","ActivityIndicator","Image","ListView","HtmlView","WebView","TabView","SegmentedBar","DatePicker","TimePicker","ListPicker","Dialogs"];
+                
+                for(var i=0; i<components.length; i++){
+                    /*if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>Screen</div>");
                     else if (i==1) $("#componentsPanel").append("<div class='component ui-widget-content'>TEXT</div>");
-                    else $("#componentsPanel").append("<div class='component ui-widget-content'>Component "+i+"</div>");
+                    else $("#componentsPanel").append("<div class='component ui-widget-content'>Component "+i+"</div>");*/
+                    $("#componentsContainer").append("<div class='component ui-widget-content'>"+components[i]+"</div>");
                 }
                 
                 
@@ -280,7 +331,7 @@
 
                       
                       switch (ui.draggable[0].innerText){
-                          case "SCREEN": {
+                          case "Screen": {
                               var leftOffset = ui.position.left - $("#componentsPanel").width();
                               var newId = application.numberOfScreens;
                               var newScreen = new model.Screen("win"+newId);
@@ -328,7 +379,9 @@
        </section>
         <table id="mainTable" style="position:absolute; height:100%;">
             <tr>
-                <td id="componentsPanel"></td>
+                <td id="componentsPanel">
+                    <section id="componentsContainer"></section>
+                </td>
                 <td id="mainContent" style="position:relative;"> <!--TODO: rename in mainContentContainer
                      <section id="realMainContent" style="background-color:red; width:100%; height:100%;"></section>        -->
 
