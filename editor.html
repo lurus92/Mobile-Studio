@@ -7,12 +7,30 @@
         <link rel="stylesheet" href="css/jqueryUI/jquery-ui.theme.min.css">
         <link rel="stylesheet" href="css/jqueryUI/jquery.ui.ruler.css">
         
-        <!--link rel="stylesheet" href="css/bootstrap/bootstrap.min.css">
+        <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
         <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
-        <script src="js/bootstrap/bootstrap.min.js"></script-->
+        <!--script src="js/bootstrap/bootstrap.min.js"></script-->
         
         <script src="js/translator.js"></script>
-        <script src="js/editor-backend.js"></script>
+        <script src="js/editor-backend.js"></script> 
+         
+        <script src="cm/lib/codemirror.js"></script>
+        <script src="cm/mode/css/css.js"></script>
+        <script src="cm/mode/xml/xml.js"></script>
+        <script src="cm/mode/javascript/javascript.js"></script>
+        <script src="cm/mode/htmlmixed/htmlmixed.js"></script>
+        
+        <!--script src="js/jstree/jstree.min.js"></script-->
+
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="cm/lib/codemirror.css">
+        <link rel="stylesheet" href="cm/theme/lesser-dark.css">
+        
+        
+        <!--link rel="stylesheet" href="js/jstree/themes/default/style.min.css" /-->
+        
+        <link href="js/fancytree/skin-lion/ui.fancytree.min.css" rel="stylesheet">
+        <!--script src="js/fancytree/jquery.fancytree-all.min.js"></script-->
         
         <link rel="stylesheet" href="css/editor.css">
 
@@ -26,6 +44,8 @@
             require('./js/jquery-ui.min.js');
             require('./js/jquery.ui.ruler.js');
             require('./js/colResizable-1.6.min.js');
+            //require('./js/jstree/jstree.js');
+            require('./js/fancytree/jquery.fancytree-all.min.js');
             //require('./js/jquery.zoomooz.js');
             var model = require('./classes.js');
             let application = new model.Application(); 
@@ -77,6 +97,9 @@
                         //default: console.log(arg);
                     }
                 });
+                
+                $("#mainContent").append(`
+                                     <div id="selector" style="background-color: blue; position:absolute; border: 4px solid #2aabd2;"></div>`);
                 
             });
             
@@ -149,7 +172,7 @@
             
             
             function buildPropertiesPanel(winId,compId){
-              var styles = `<section style="max-height:30%; overflow: scroll">
+              var styles = `<section style="max-height:200px; overflow: scroll">
                                                         <table>
                                                             <tbody>`;
                 
@@ -208,7 +231,7 @@
                         <tbody>
                             <tr>
                                 <td> onclick </td>
-                                <td style="float:right;"><input type="button" /></td>
+                                <td style="float:right;"><input type="button" onclick="drawLine(event);"/></td>
                             </tr>
                         </tbody>
                     </table>`
@@ -225,22 +248,31 @@
                 `+actions+`
                      <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`',null);">`;
 
-              $("#propertyPanel").html(panelDetailContent); 
+              $("#properties").html(panelDetailContent); 
             }
             
+            function setSelectionBox(elementToWrap){
+                $("#selector").css("top",""+(parseFloat(elementToWrap.target.style.top)-3.0)+"")
+                $("#selector").css("left",""+(parseFloat(elementToWrap.target.style.left)-3.0)+"");
+                $("#selector").css("width",elementToWrap.target.style.width);
+                $("#selector").css("height",elementToWrap.target.style.height);
+            }
             
             function initializeWindowEvents(){
                 $(".window").draggable();
-                              
                               //DetailPanel
                               $(".window").click(function(sender){
+                                  //console.log(sender);
                                   if (sender.target.id.substring(0,3)=="win"){
                                       buildPropertiesPanel(""+sender.target.id+"",null);
-                                      
+                                      setSelectionBox(sender)
                                       $("#propertyPanel").show();
                                   }else{
+                                                                     console.log(sender);
+
                                       buildPropertiesPanel(""+this.id+"",""+sender.target.id+"");
-                                      
+                                      setSelectionBox(sender)
+
                                       $("#propertyPanel").show(); 
                                   }
                               });
@@ -291,6 +323,7 @@
                                       //Creation of an attribute at run time:
                                       application.screens[this.id].components[""+id+""] = component;
                                       application.screens[this.id].numberOfComponents++;
+                                      $("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
                                      
                                   }
                       }); 
@@ -303,6 +336,12 @@
                 if (!existingPrj) buildNewProject(config);  
                 else restoreProjectFromFile(config[2],config[1]);       //Check Indexes
                 //$("#loadingPanel").hide();
+                
+                /*$('#fileExplorer').fileTree({ root: config[2]+"/"+config[1] }, function(file) {
+                    alert(file);
+                });*/
+                
+                document.title += " - "+config[1];
                 
                 
                 
@@ -344,6 +383,7 @@
                                                   </div>`;
                               //$(sampleWindow).appendTo($(this));
                               $("#mainContent").append(sampleWindow);
+                              $("#modelExplorer").append("<span class='firstLevelModel'>win"+newId+" - Window </span>");
                               initializeWindowEvents();
                                  
                       //ui.draggable.clone().appendTo($(this)).draggable();
@@ -360,7 +400,83 @@
                     case "buildSucceeded": new Notification("Build Succeeded","");
                 }
             }*/
-                 
+            var lineActive = false;
+            function drawLine(event){
+                
+                var findElementAtClickListener = function(event){
+                    $("#svg-container").remove();
+                    console.log(document.elementFromPoint(event.clientX,event.clientY));
+                    lineActive = false;
+                    document.onmousemove = null;
+                    $("body").unbind("click",findElementAtClickListener);
+                }
+                                
+                //console.log(event);
+                document.onmousemove = handleMouseMove;
+                function handleMouseMove(event) {
+                    var dot, eventDoc, doc, body, pageX, pageY;
+
+                    event = event || window.event; // IE-ism
+
+                    // If pageX/Y aren't available and clientX/Y are,
+                    // calculate pageX/Y - logic taken from jQuery.
+                    // (This is to support old IE)
+                    if (event.pageX == null && event.clientX != null) {
+                        eventDoc = (event.target && event.target.ownerDocument) || document;
+                        doc = eventDoc.documentElement;
+                        body = eventDoc.body;
+
+                        event.pageX = event.clientX +
+                          (doc && doc.scrollLeft || body && body.scrollLeft || 0) -
+                          (doc && doc.clientLeft || body && body.clientLeft || 0);
+                        event.pageY = event.clientY +
+                          (doc && doc.scrollTop  || body && body.scrollTop  || 0) -
+                          (doc && doc.clientTop  || body && body.clientTop  || 0 );
+                    }
+
+                    // Use event.pageX / event.pageY here
+                    console.log(event.pageX+" "+event.pageY);
+                    if(!lineActive){
+                        
+                     $("body").prepend(`
+                        <svg id="svg-container" height="100%" width="100%" style="position: absolute;">
+                          <line id="lineAction" x1="`+event.clientX+`" y1="`+event.clientY+`" x2="200" y2="200" style="stroke:rgb(0,0,255);stroke-width:2" />
+                        </svg>
+                                `);
+                        lineActive = true;
+                    }else{
+                        document.getElementById("lineAction").setAttribute("x2",event.pageX);
+                        document.getElementById("lineAction").setAttribute("y2",event.pageY);
+                    }
+                    
+                    /*
+                    $("body").click(function(event){
+                        $("#svg-container").remove();
+                        console.log(document.elementFromPoint(event.clientX,event.clientY));
+                        lineActive = false;
+                        document.onmousemove = null;
+                    })*/
+                    if (lineActive)  $("body").bind("click","body",findElementAtClickListener);
+
+                }
+         
+            }
+            
+            function createCodeEditor(){
+                $("#mainContent").html("<input type='textarea' id='code' style='width:100%; height: 100%'/>");
+                 codeEditor = CodeMirror.fromTextArea($("#code")[0], {
+                    lineNumbers: true,
+                    mode: "htmlmixed",
+                    viewportMargin: Infinity,
+                    lineWrapping: true,
+                    theme: "lesser-dark",
+
+                });      
+                codeEditor.refresh();
+                //$("#mainContent").css("overflow","hidden");
+                $(".CodeMirror-scroll").css("height",parseInt($("#mainContent").css("height"))-34);
+                //TODO: CHANGE SIZE ON RESIZE
+            }   
         </script>
     </head>
     <body>
@@ -370,6 +486,7 @@
            <button id="compileButton" onclick="compileForNS();">Compile Project</button>
            <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>
            <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
+           <button id="iOSGo" onclick="$('#consoleContainer').toggle();">Show/Hide console</button>
        </nav>
        <section id="loadingPanel">
            <h1 style="color:white;">LOADING</h1>
@@ -380,13 +497,23 @@
         <table id="mainTable" style="position:absolute; height:100%;">
             <tr>
                 <td id="componentsPanel">
+                    <h4>File Explorer</h4>
+                    <section id="fileExplorer">
+                        <button onclick="createCodeEditor();">Open JS editor</button>
+                        <button>Open Visual editor</button>
+                    </section>
+                    <hr>
                     <section id="componentsContainer"></section>
                 </td>
                 <td id="mainContent" style="position:relative;"> <!--TODO: rename in mainContentContainer
                      <section id="realMainContent" style="background-color:red; width:100%; height:100%;"></section>        -->
-
                 </td>
-                <td id="propertyPanel"><small>Properties</small><br></td>
+                <td id="propertyPanel">
+                    <h4>Components Explorer</h4>
+                    <section id="modelExplorer"></section>
+                    <hr>
+                    <section id="properties"></section>   
+                </td>
 
                 </td>
             </tr>

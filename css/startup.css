@@ -69,9 +69,8 @@ strong{
 #projectsDrawer{
     position: absolute;
     background-color: #4A4A4A;
-    border-radius: 10px;
     width: 400px;
-    height: 300px;
+    height: 250px;
     box-shadow: inset 1px 1px 10px #000;
     right: -420px;
     top: 100px;
@@ -84,7 +83,6 @@ strong{
 
 
 #projectsDrawer button{
-    position: absolute;
     width: 100%;
     left: 0;
     bottom: 0;
@@ -103,7 +101,7 @@ strong{
 #projectsDrawer h1{
     font-size: 20px;
     text-align: left;
-    position: relative;
+    position: absolute;
     top: -40px;
 }
 
@@ -185,12 +183,12 @@ form{
 .content-prj{
     background: darkgray;
     box-shadow: inset 1px 1px 2px #000;
+    padding: 10px;
 }
 
 .content-prj h2{
     color: black;
     text-align: left;
-    padding: 5px;
     margin: 0;
 }
 
@@ -199,5 +197,10 @@ form{
     font-size: 12px;
     padding: 0;
     margin: 0;
-    padding: 5px;
 }
+
+#listContainer{
+    height: 100%;
+    overflow: scroll;
+}
+

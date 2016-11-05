@@ -13,7 +13,7 @@ function translate(application){
            
 function translateScreen(screen){
     switch (screen.layout){
-        case "defaultLayout":
+        case "stackLayout":
             return `<Page id="`+screen.id+`">
                         <StackLayout>
                             `+translateComponents(screen)+`

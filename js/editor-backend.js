@@ -145,8 +145,15 @@ function run(mode){
         console.log(data); 
         $("#console").append(data);
         $("#console").append("<br/>");
-        $("#console").scrollTop = $("#console").scrollHeight;
-        if(data=="** BUILD SUCCEEDED **") new Notification("Build Succeeded","");
+        $("#console").scrollTop = $("#console").prop('scrollHeight');
+        if (data.indexOf("BUILD SUCCEEDED") !== -1) new Notification("Build Succeeded","");
+    });
+    cp.stderr.on('data',function(data){
+        console.log(data); 
+        $("#console").append("<span style='color:red'>"+data+"</span>");
+        $("#console").append("<br/>");
+        $("#console").scrollTop = $("#console").prop('scrollHeight');
+        new Notification("Error!",data);         
     });
 }
          
@@ -179,6 +186,7 @@ function saveProjectToMainScreen(){
         return console.log(err);
     }
     console.log("New Project added");
+    existingPrj = true;
 });    
 }
 
@@ -212,6 +220,7 @@ function restoreProjectFromFile(path,prjName){
       fs.readFile(path+"/"+prjName+"/"+prjName+".msa", 'utf8', function (err,data) {
       if (err) {
           alert("File Not Found");
+          window.close();               //Send event to main in order to reopen startScreen
         return console.log(err);
       }
       restoreFromString(data);
@@ -272,4 +281,62 @@ function restoreFromString(msaString){        //msaString is the string inside t
 
         }
     $("#loadingPanel").hide();
+}
+
+
+function openFileInCodeEditor(fileName){
+    if(!fileName) console.log("error")
+    fs.readFile(fileName, 'utf8', function (err,data) {
+        codeEditor.setValue(String(data));
+    });
+}
+
+
+var fs = require('fs'),
+    path = require('path')
+
+function dirTree(filename) {
+    var stats = fs.lstatSync(filename),
+        info = {
+            path: filename,
+            title: path.basename(filename)
+        };
+    if((path.basename=="Android")||(path.basename=="iOS")||(path.basename=="ios")) return info;
+    if (stats.isDirectory()) {
+        //info.type = "folder";
+        info.folder = true;
+        info.children = fs.readdirSync(filename).map(function(child) {
+            return dirTree(filename + '/' + child);
+        });
+    } else {
+        // Assuming it's a file. In real life it could be a symlink or
+        // something else!
+        info.type = "file";
+    }
+
+    return info;
+}
+
+function populateFileExplorer(info){
+   $("#fileExplorer").fancytree({
+       source: info,
+       activate: function(event, data){
+          // A node was activated: display its title:
+          createCodeEditor();
+          node = data.node;
+          openFileInCodeEditor(node.data.path);
+        },
+            beforeSelect: function(event, data){
+              // A node is about to be selected: prevent this, for folder-nodes:
+              if( data.node.isFolder() ){
+                return false;
+              }
+    }
+                                });
+}
+
+function createFileExplorer(){
+    $("#fileExplorer").html("");
+    var content = dirTree(workingPath+"/"+projectName);
+    populateFileExplorer(content);
 }
