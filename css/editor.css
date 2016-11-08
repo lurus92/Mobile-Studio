@@ -277,3 +277,10 @@ svg{
   position: absolute;
 }
 
+.selected-element{
+    box-shadow: 0px 0px 8px 0px rgba(4,126,207,1);
+}
+
+.fancytree-container{
+    height: 100%;
+}

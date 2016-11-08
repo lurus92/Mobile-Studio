@@ -87,13 +87,7 @@ function buildNewProject(config){
      for (var i in application.screens){
          if (i==0) continue;
          var xml = translateScreen(application.screens[i]);
-         var js = `//Put something interesting here
-                    var createViewModel = require("./main-view-model").createViewModel;
-                    function onNavigatingTo(args) {
-                        var page = args.object;
-                        page.bindingContext = createViewModel();
-                    }
-                    exports.onNavigatingTo = onNavigatingTo;`;
+         var js = translateActions(application.screens[i]);
          var css = translateScreenStyle(application.screens[i]); //put CSS
          var css = css.replace(/px/g,'');   //HERE YOU SHOULD DELETE PX/EM/OTHER UNITS
          //File writing
@@ -216,11 +210,13 @@ function storeModel(){
     alert("Project Saved");
 }
 
-function restoreProjectFromFile(path,prjName){
+function restoreProjectFromFile(){
+      var path = workingPath;
+      var prjName = projectName;          //REMOVE THIS: THEY ARE GLOBAL
       fs.readFile(path+"/"+prjName+"/"+prjName+".msa", 'utf8', function (err,data) {
       if (err) {
           alert("File Not Found");
-          window.close();               //Send event to main in order to reopen startScreen
+          //window.close();               //Send event to main in order to reopen startScreen
         return console.log(err);
       }
       restoreFromString(data);
@@ -233,7 +229,11 @@ function restoreFromString(msaString){        //msaString is the string inside t
     workingPath = msaString.split("|")[1];
     var payload = msaString.split("|")[2];
     application = JSON.parse(payload);      //Model rebuilt
-    //We should rebuild the apps
+    createComponentsExplorer(application);
+    //clean the canvas
+    $("#mainContent").html("");
+    $("#mainContent").ruler();
+    //Wea should rebuild the apps
     for (var i in application.screens){
         var newWindow = `<div id='`+i+`' class='window drawn-element'>
                             <span>`+i+`</span>  <!--INSERT FIRST WINDOW TEXT -->
@@ -285,10 +285,19 @@ function restoreFromString(msaString){        //msaString is the string inside t
 
 
 function openFileInCodeEditor(fileName){
-    if(!fileName) console.log("error")
-    fs.readFile(fileName, 'utf8', function (err,data) {
-        codeEditor.setValue(String(data));
-    });
+    if(!fileName) console.log("error");
+    var splitted = fileName.split(".");
+    var ext = splitted[splitted.length-1];
+    switch (ext){
+        case "msa": restoreProjectFromFile();
+            break;
+        //case "json":  PUT THEMES HERE
+        default: 
+            fs.readFile(fileName, 'utf8', function (err,data) {
+                $("#propertyPanel").hide();
+                codeEditor.setValue(String(data));
+            });
+    }                        
 }
 
 
@@ -340,3 +349,12 @@ function createFileExplorer(){
     var content = dirTree(workingPath+"/"+projectName);
     populateFileExplorer(content);
 }
+
+
+function createComponentsExplorer(components){
+    
+}
+
+/*function bindAction(targetElement, senderComponent, senderWindow){
+    
+}*/

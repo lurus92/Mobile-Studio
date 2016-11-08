@@ -14,7 +14,7 @@ function translate(application){
 function translateScreen(screen){
     switch (screen.layout){
         case "stackLayout":
-            return `<Page id="`+screen.id+`">
+            return `<Page id="`+screen.id+`" loaded="loadView`+screen.id+`">
                         <StackLayout>
                             `+translateComponents(screen)+`
                         </StackLayout>
@@ -86,4 +86,32 @@ function translateScreenStyle(screen){
     }
     return styleWindow+`
             `+styleComponents;
+}
+
+function translateActions(screen){
+   var js = `var view = require("ui/core/view");
+             var frame = require("ui/frame");  //Frame that allows navigation
+
+            function onLoad(args) {
+                var page = args.object;
+            `
+   for (var i in screen.components){
+       //FOR NOW WE ONLY HANDLE TAP ON BUTTONS
+       if (screen.components[i].isDynamic){
+            js += `var `+i+`=view.getViewById(page, "`+i+`");`;
+            for (action in screen.components[i].actions)    //We handle multiple actions per element
+                switch (action){                            //We consider only navigation to different pages
+                   case "navTo": js+=`
+                        `+i+`.on("tap", function(){
+                            frame.topmost().navigate({moduleName: "`+screen.components[i].actions[action]+`"});
+                        });`
+                   break;
+                   default: js+="";
+               }
+                        
+        }
+   }
+        js += `}
+                exports.loadView`+screen.id+` = onLoad;`
+        return js;
 }

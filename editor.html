@@ -231,7 +231,7 @@
                         <tbody>
                             <tr>
                                 <td> onclick </td>
-                                <td style="float:right;"><input type="button" onclick="drawLine(event);"/></td>
+                                <td style="float:right;"><input type="button" onclick="drawLine.call(this,event,'`+compId+`','`+winId+`');"/></td>
                             </tr>
                         </tbody>
                     </table>`
@@ -260,23 +260,23 @@
             
             function initializeWindowEvents(){
                 $(".window").draggable();
-                              //DetailPanel
-                              $(".window").click(function(sender){
-                                  //console.log(sender);
-                                  if (sender.target.id.substring(0,3)=="win"){
-                                      buildPropertiesPanel(""+sender.target.id+"",null);
-                                      setSelectionBox(sender)
-                                      $("#propertyPanel").show();
-                                  }else{
-                                                                     console.log(sender);
+                  //DetailPanel
+                  $(".window").click(function(sender){
+                      //console.log(sender);
+                      if (sender.target.id.substring(0,3)=="win"){
+                          buildPropertiesPanel(""+sender.target.id+"",null);
+                          setSelectionBox(sender)
+                          $("#propertyPanel").show();
+                      }else{
+                                                         console.log(sender);
 
-                                      buildPropertiesPanel(""+this.id+"",""+sender.target.id+"");
-                                      setSelectionBox(sender)
+                          buildPropertiesPanel(""+this.id+"",""+sender.target.id+"");
+                          setSelectionBox(sender)
 
-                                      $("#propertyPanel").show(); 
-                                  }
-                              });
-                              $(".window").droppable({
+                          $("#propertyPanel").show(); 
+                      }
+                  });
+                  $(".window").droppable({
                                   drop: function( event, ui ) {
                                         console.log("Dropping element!");
                                         var id = "";
@@ -326,17 +326,26 @@
                                       $("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
                                      
                                   }
-                      }); 
+                      });
+                
+                $(".drawn-element").click(function(){
+                  $(this).toggleClass('selected-element');
+                    console.log(this);
+                })
             }
 
 
             
             function initialization(config){        //config[1]: working path [it is in 0 position]
+               // console.log(config);
+                projectName = config[1];
+                workingPath = config[2];
                 existingPrj = config[3];
                 if (!existingPrj) buildNewProject(config);  
-                else restoreProjectFromFile(config[2],config[1]);       //Check Indexes
+                else restoreProjectFromFile();       //Check Indexes
                 //$("#loadingPanel").hide();
-                
+                createFileExplorer();
+
                 /*$('#fileExplorer').fileTree({ root: config[2]+"/"+config[1] }, function(file) {
                     alert(file);
                 });*/
@@ -401,17 +410,25 @@
                 }
             }*/
             var lineActive = false;
-            function drawLine(event){
+            function drawLine(event, compId, winId){
+                console.log(event);
+                //console.log(sender);
+                console.log(compId);
+                console.log(winId);
                 
                 var findElementAtClickListener = function(event){
                     $("#svg-container").remove();
-                    console.log(document.elementFromPoint(event.clientX,event.clientY));
+                    console.log(event);
+                    //bindAction(document.elementFromPoint(event.clientX,event.clientY),compId,winId);
+                    console.log("win "+winId+" comp: "+compId);
+                    application.screens[""+winId+""].components[""+compId+""].isDynamic = true;
+                    application.screens[""+winId+""].components[""+compId+""].actions["navTo"] = document.elementFromPoint(event.clientX,event.clientY).id;
+                    //console.log(document.elementFromPoint(event.clientX,event.clientY));
                     lineActive = false;
                     document.onmousemove = null;
                     $("body").unbind("click",findElementAtClickListener);
                 }
-                                
-                //console.log(event);
+                
                 document.onmousemove = handleMouseMove;
                 function handleMouseMove(event) {
                     var dot, eventDoc, doc, body, pageX, pageY;
@@ -435,7 +452,7 @@
                     }
 
                     // Use event.pageX / event.pageY here
-                    console.log(event.pageX+" "+event.pageY);
+                   // console.log(event.pageX+" "+event.pageY);
                     if(!lineActive){
                         
                      $("body").prepend(`
@@ -497,7 +514,7 @@
         <table id="mainTable" style="position:absolute; height:100%;">
             <tr>
                 <td id="componentsPanel">
-                    <h4>File Explorer</h4>
+                    <h4 style="margin-left: 10px;">File Explorer</h4>
                     <section id="fileExplorer">
                         <button onclick="createCodeEditor();">Open JS editor</button>
                         <button>Open Visual editor</button>

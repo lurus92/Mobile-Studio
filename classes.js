@@ -23,13 +23,17 @@ class Component {
     constructor(id, type){
         this.id = id;
         this.type = type;
-        this.specificAttributes = {}
+        this.specificAttributes = {};
+        this.actions = {};
+        this.isDynamic = false;             //If it is involved in some actions (need to be declared in JS)
         this.style = "";
         //Specific attributes for specific components
         switch (type){
             case "Label": this.specificAttributes["text"] = "Label";
                 break;
-                case "Button": this.specificAttributes["text"] = "Button";
+                case "Button":{
+                    this.specificAttributes["text"] = "Button";
+                } 
                       break;
                   case "TextField": this.specificAttributes["text"] = "TextField";
                       break;
