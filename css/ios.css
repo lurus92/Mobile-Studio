@@ -1,0 +1,86 @@
+/*DEFAULT STYLE VALUES FOR IOS*/ 
+
+.ios.window{
+    /*width: 1334px;
+    height: 750px;*/
+    width: 375px;
+    height: 667px;
+}
+
+.ios.header{
+    background-image: url("../img/components/ios/statusbar.png");
+    background-size: cover;
+    height: 11px;
+    width: 100%;
+    border: none;  
+}
+
+.ios.button{
+    font-size: 24px;
+}
+
+.ios.textfield{
+    background-color: transparent;
+}
+
+.ios.searchbar{
+    background-image: url("../img/components/ios/searchbar.png");
+    background-size: cover;
+    height: 44px;
+    width: 100%;
+    border: none;
+    padding-left: 30px;
+    color: black;
+}
+
+.ios.switch{
+    display: none;
+}
+
+.ios.switch + label{
+    height: 40px;
+    width: 42px;
+} 
+
+body:not(#foo) .ios.switch:checked + label{
+    background-image: url("../img/components/ios/switchOn.png");
+} 
+
+body:not(#foo) i.ios.switch + label{
+    background-image: url("../img/components/ios/switchOff.png")
+}
+/*
+.ios.switch{
+    background-image: url("../img/components/ios/switchOff.png");
+    background-size: cover;
+    height: 10px;
+    border: none;
+}
+
+.ios.switch:checked{
+    background-image: url("../img/components/ios/switchOn.png");
+    background-size: cover;
+    height: 10px;
+    border: none;
+}
+*/
+.ios.slider{
+    background-image: url("../img/components/ios/slider.png");
+    background-size: cover;
+    height: 44px;
+    width: 100%;
+    border: none;
+    color: black;
+}
+
+.ios.progress{
+    width: 100%;            /*NOT USEFUL*/
+}
+
+.ios.activity-indicator{
+    background-image: url("../img/components/ios/loading.gif");
+    background-size: cover;
+    height: 44px;
+    width: 100%;
+    border: none;
+}

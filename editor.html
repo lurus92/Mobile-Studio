@@ -6,6 +6,7 @@
         <link rel="stylesheet" href="css/jqueryUI/jquery-ui.structure.min.css">
         <link rel="stylesheet" href="css/jqueryUI/jquery-ui.theme.min.css">
         <link rel="stylesheet" href="css/jqueryUI/jquery.ui.ruler.css">
+        <link rel="stylesheet" href="css/ios.css">
         
         <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
         <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
@@ -49,6 +50,7 @@
             //require('./js/jquery.zoomooz.js');
             var model = require('./classes.js');
             let application = new model.Application(); 
+            platformToPreview = "ios";
             $(window).ready(function() {
                   
                 //Graphic Initialization
@@ -62,6 +64,21 @@
                 $( "#propertyPanel" ).hide();
 
                 $( "#mainContent" ).ruler();
+                
+                $("#previewPlatformSelector").change(function(){
+                    if(this.value=="ios"){
+                        $(".drawn-element").removeClass("android");
+                        $(".drawn-element").addClass("ios");
+                        platformToPreview = "ios";
+                    }else{
+                        $(".drawn-element").removeClass("ios");
+                        $(".drawn-element").addClass("android");
+                        platformToPreview = "android";
+
+                    }
+                });
+                
+
                 
                 $("#mainContent").css("zoom",1);
 
@@ -97,10 +114,15 @@
                         //default: console.log(arg);
                     }
                 });
-                
+                /*
                 $("#mainContent").append(`
-                                     <div id="selector" style="background-color: blue; position:absolute; border: 4px solid #2aabd2;"></div>`);
+                                     <div id="selector" style="background-color: blue; position:absolute; border: 4px solid #2aabd2;"></div>`);*/
                 
+                
+                //Only at the very end we should set up a style (iOS/Android)
+                //ios standard visualization
+                $(".drawn-element").addClass("ios");
+                platformToPreview = "ios";
             });
             
         
@@ -111,6 +133,7 @@
                     $("#propertyPanel").hide();
                     //Delete from model!!!
                     //application.screens.splice(idToDelete,1);
+                    console.log("About to remove: winId = "+winId+", idToDelete = "+idToDelete);
                     if (winId==null){
                         delete application.screens[idToDelete];
                         application.numberOfScreens--;
@@ -126,7 +149,7 @@
                 console.log("DO TRANSLATION HERE!")
             }
             
-            function setNewCss(event, attributeID, property){
+            function setNewCss(event, attributeID, property){                   //Incremental CSS UPDATE 
                 $("#"+attributeID+"").css(""+property+"",""+this.value+"");
                 //console.log(this);
             }
@@ -235,7 +258,9 @@
                             </tr>
                         </tbody>
                     </table>`
-
+              var containingWindow;
+              if (!compId) containingWindow = null;
+                else containingWindow = winId;
               var panelDetailContent = `
                     <h1 id="titlePanelDetail">`+attributeToSearch.id+`</h1>
                     <h3>`+attributeToSearch.type+`</h3>
@@ -246,7 +271,7 @@
                 `+styles+`
                     <h2> Actions </h2>
                 `+actions+`
-                     <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`',null);">`;
+                     <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`','`+containingWindow+`');">`;
 
               $("#properties").html(panelDetailContent); 
             }
@@ -265,19 +290,27 @@
                       //console.log(sender);
                       if (sender.target.id.substring(0,3)=="win"){
                           buildPropertiesPanel(""+sender.target.id+"",null);
-                          setSelectionBox(sender)
+                          //setSelectionBox(sender)
                           $("#propertyPanel").show();
                       }else{
-                                                         console.log(sender);
+                 //       console.log(sender);
 
                           buildPropertiesPanel(""+this.id+"",""+sender.target.id+"");
-                          setSelectionBox(sender)
+                          //setSelectionBox(sender)
 
                           $("#propertyPanel").show(); 
                       }
                   });
                   $(".window").droppable({
                                   drop: function( event, ui ) {
+                                      //This function controls what happens when dropping an element in a Window
+                                      //2 behaviour to analyze:
+                                      //1) a component is taken from component panel
+                                      //2) an already present component get moved
+                                      
+                                      //1) the ui.draggable[0] has "component" class
+                                      x = ui.draggable[0];
+                                      if ($.inArray("component", ui.draggable[0].classList)>=0){
                                         console.log("Dropping element!");
                                         var id = "";
                                         var componentHTML = "";
@@ -287,35 +320,46 @@
                                         var layout = application.screens[this.id].layout;
                                         switch (type){
                                               case "Label": 
-                                                  componentHTML = "<div id='"+id+"' class='drawn-element label  "+layout+"'>Label</div>";
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element label  "+layout+" "+platformToPreview+"'>Label</div>";
                                                   break;        
                                               case "Button":
-                                                  componentHTML = "<button id='"+id+"' class='drawn-element button "+layout+"' value='Button'></button>";
+                                                  componentHTML = "<button id='"+id+"' class='drawn-element button "+layout+" "+platformToPreview+"' value='Button'></button>";
                                                   break;
                                               case "TextField":
-                                                  componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield "+layout+"' value='Insert Text Here'/>";
+                                                  componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield "+layout+" "+platformToPreview+"' value='Insert Text Here'/>";
                                                   break;
                                               case "TextView":
-                                                  componentHTML="<div>Cos'è una TextView?</div>";
+                                                  componentHTML="<input type='textarea' id='"+id+"' class='drawn-element textarea "+layout+" "+platformToPreview+"' value='Insert Multiline Text Here'/>";
                                                   break;
                                               case "SearchBar":
-                                                  componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar "+layout+"' value='Search Here'/>";
+                                                  componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar "+layout+" "+platformToPreview+"' value='Search Here'/>";
                                                   break;
                                               case "Switch":
-                                                  componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch "+layout+"'/>";
+                                                  componentHTML = "<input type='checkbox' id='"+id+"' checked='checked' class='drawn-element switch "+layout+" "+platformToPreview+"'/>";
                                                   break;
                                               case "Slider":
-                                                  componentHTML = "<div>Slider</div>";
+                                                  componentHTML = "<input type='range' id='"+id+"' class='drawn-element slider "+layout+" "+platformToPreview+"' value='50'/>";
                                                   break;
                                               case "Progress":
-                                                  componentHTML = "<progress id='"+id+"' class='drawn-element progress "+layout+"'/>";
+                                                  componentHTML = "<progress id='"+id+"' class='drawn-element progress "+layout+" "+platformToPreview+"'/>";
                                                   break;
-
+                                              case "ActivityIndicator":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'/>";
+                                                  break;
+                                              case "Image":
+                                                  componentHTML = "<img id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'/>";
+                                                  break;
+                                                
                                               default:
                                                   componentHTML = "<div>Component Unavailable</div>";
                                       
                                       }
-                                      $(componentHTML).addClass(application.screens[this.id].layout);
+                                      //$(componentHTML).addClass(application.screens[this.id].layout);
+                                      //console.log(platformToPreview);
+                                      //$(componentHTML).addClass(platformToPreview);
+                                      //Checkboxes have a different behaviour
+                                      if ($(componentHTML).attr("type")=="checkbox")
+                                          componentHTML += "<label for='"+$(componentHTML).attr("id")+"'></label>";
                                       $(this).append(componentHTML);
                                       //Update Model
                                       //Setting a property via constructor
@@ -324,13 +368,51 @@
                                       application.screens[this.id].components[""+id+""] = component;
                                       application.screens[this.id].numberOfComponents++;
                                       $("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
+                                      $("#"+id).draggable({ containment: "parent" });
                                      
+                                  }else{
+                                        //Behaviour here to move objects (STACK LAYOUT)
+                                      console.log("moved object");
+                                      var movingObject = $(ui.draggable[0]).clone();
+                                      $(ui.draggable[0]).remove();
+                                      var target = document.elementFromPoint(event.clientX,event.clientY);
+                                      if (!application.screens[""+target.id+""]){
+                                          //the target is not a window
+                                          $(movingObject).insertAfter(target);
+                                          $(movingObject).css("top","0px");
+                                          $(movingObject).draggable({ containment: "parent" });
+                                          //UPDATE MODEL!!!!
+                                          //Bottleneck: to update the model we need to rewrite it:
+                                          var oldComponentsModule = application.screens[this.id].components;
+                                          application.screens[this.id].components = {};
+                                          for (var i in oldComponentsModule){
+                                              if (oldComponentsModule[i].id == movingObject[0].id) continue;
+                                              if (oldComponentsModule[i].id == target.id){
+                                                  application.screens[this.id].components[i] = oldComponentsModule[i];
+                                                  application.screens[this.id].components[movingObject[0].id] = oldComponentsModule[movingObject[0].id];
+                                              }else{
+                                                  application.screens[this.id].components[i] = oldComponentsModule[i];
+                                              }
+                                          }
+                                      }else{
+                                          //the target is an empty space in a window
+                                          $(this).append(movingObject);
+                                          $(movingObject).css("top","0px");
+                                          $(movingObject).draggable({ containment: "parent" });
+                                          //UPDATE MODEL!!!
+                                          var toRestore = application.screens[this.id].components[movingObject[0].id];
+                                          delete application.screens[this.id].components[movingObject[0].id];
+                                          application.screens[this.id].components[movingObject[0].id] = toRestore;
+                                      }  //$(movingObject).insertBefore(document.elementFromPoint(event.clientX,event.clientY));
+                                      //console.log(document.elementFromPoint(event.clientX,event.clientY));
+                                    }
                                   }
                       });
                 
+                
                 $(".drawn-element").click(function(){
                   $(this).toggleClass('selected-element');
-                    console.log(this);
+                    //console.log(this);
                 })
             }
 
@@ -387,8 +469,9 @@
                               application.numberOfScreens++;
                               var firstWindowString = ""; 
                               if (application.numberOfScreens==1) firstWindowString = "(Starting Window)";
-                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element' style='top:`+ui.position.top+`; left: `+leftOffset+`;'>
+                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element `+platformToPreview+`' style='top:`+ui.position.top+`; left: `+leftOffset+`;'>
                                                   <span>win`+newId+` `+firstWindowString+`</span>
+                                                  <div class="header drawn-element `+platformToPreview+`"></div>
                                                   </div>`;
                               //$(sampleWindow).appendTo($(this));
                               $("#mainContent").append(sampleWindow);
@@ -499,6 +582,13 @@
     <body>
        <nav>
            Mobile Studio
+           <span style="float: right;">Preview as: 
+                <select id="previewPlatformSelector">
+                   <option value="ios">iOS</option>
+                   <option value="android">Android</option>
+                </select>
+
+           </span>
            <button id="saveButton" onclick="storeModel();">Save Project</button>
            <button id="compileButton" onclick="compileForNS();">Compile Project</button>
            <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>

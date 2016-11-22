@@ -275,9 +275,15 @@ function restoreFromString(msaString){        //msaString is the string inside t
                       componentHTML = "<div> Couldn't restore this element </div>";
                 }
                 $("#"+i).append(componentHTML);
+                $("#"+j).attr("style",application.screens[i].components[j].style);
+                $("#"+j).addClass(application.screens[i].layout);
+                $("#"+j).addClass(platformToPreview);   //works?
+                $("#"+j).draggable({ containment: "parent" });
 
             }
-            $("#"+j).attr("style",application.screens[i].components[j].style);
+            $("#"+i).prepend(`<div class="header drawn-element `+platformToPreview+`"></div>
+                                                  </div>`);
+
 
         }
     $("#loadingPanel").hide();

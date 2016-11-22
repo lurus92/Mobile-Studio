@@ -9,13 +9,11 @@ class Application {
 class Screen {
     constructor(id){
         this.id=id;
-        this.customProperty= 1;         //example of property;
         this.components = {};
         this.numberOfComponents = 0;
         this.layout = "stackLayout";
         this.style = "";
-        
-        
+        this.type = "Window"        
     }
 }
 

@@ -115,7 +115,7 @@ td {
 .window span{
     position: absolute;
     top: -20px;
-    
+    left: 0px;
 }
 
 .drawn-element{
