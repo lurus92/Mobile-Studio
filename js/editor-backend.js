@@ -73,7 +73,8 @@ function buildNewProject(config){
 
  function compileForNS(){
      var translation = translate(application);
-     var startScreen = application.screens["win0"].id;       //TODO: improve with name, not id
+     //var startScreen = application.screens["win0"].id;       //TODO: improve with name, not id
+     var startScreen = application.startingScreen;
      var appJS = `var application = require("application");
                   application.start({ moduleName: "`+startScreen+`" });`;
      var rootPrj = workingPath+"/"+projectName;
@@ -140,7 +141,9 @@ function run(mode){
         $("#console").append(data);
         $("#console").append("<br/>");
         $("#console").scrollTop = $("#console").prop('scrollHeight');
-        if (data.indexOf("BUILD SUCCEEDED") !== -1) new Notification("Build Succeeded","");
+        if (data.indexOf("BUILD SUCCEEDED") !== -1) new Notification("Build Succeeded",{
+            title: "Build Succeeded",
+          });
     });
     cp.stderr.on('data',function(data){
         console.log(data); 
@@ -196,7 +199,7 @@ function storeModel(){
     }
 
     //Easy task: stringify everything
-    toStore = projectName + "|" + workingPath + "|" + JSON.stringify(application);
+    toStore = projectName + "|" + workingPath + "|" + JSON.stringify(application) + "|" + componentsCounter;
     var rootPrj = workingPath+"/"+projectName+"/";
     fs.writeFile(rootPrj+projectName+".msa", toStore, function(err) {
         if(err) {
@@ -219,6 +222,7 @@ function restoreProjectFromFile(){
           //window.close();               //Send event to main in order to reopen startScreen
         return console.log(err);
       }
+      $("#componentsContainer").show();
       restoreFromString(data);
     });   
 
@@ -228,14 +232,15 @@ function restoreFromString(msaString){        //msaString is the string inside t
     projectName = msaString.split("|")[0];
     workingPath = msaString.split("|")[1];
     var payload = msaString.split("|")[2];
+    componentsCounter = msaString.split("|")[3];
     application = JSON.parse(payload);      //Model rebuilt
-    createComponentsExplorer(application);
+    createComponentsExplorer();
     //clean the canvas
     $("#mainContent").html("");
     $("#mainContent").ruler();
     //Wea should rebuild the apps
     for (var i in application.screens){
-        var newWindow = `<div id='`+i+`' class='window drawn-element'>
+        var newWindow = `<div id='`+i+`' class='window drawn-element `+platformToPreview+`'>
                             <span>`+i+`</span>  <!--INSERT FIRST WINDOW TEXT -->
                          </div>`;
         $("#mainContent").append(newWindow);
@@ -249,12 +254,12 @@ function restoreFromString(msaString){        //msaString is the string inside t
                     componentHTML = "<div id='"+id+"' class='drawn-element label'>"+application.screens[i].components[j].specificAttributes['text']+"</div>";
                     break;
                 case "Button":
-                      componentHTML = "<button id='"+id+"' class='drawn-element button' value='"+application.screens[i].components[j].specificAttributes['text']+"'></button>";
+                      componentHTML = "<button id='"+id+"' class='drawn-element button' value='"+application.screens[i].components[j].specificAttributes['text']+"'>"+application.screens[i].components[j].specificAttributes['text']+"</button>";
                       break;
                   case "TextField":
                       componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
                       break;
-                  case "TextView": componentHTML="<div>Cos'è una TextView?</div>";
+                  case "TextView": componentHTML="<input type='textarea' id='"+id+"' class='drawn-element textarea' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
                       break;
                   case "SearchBar":
                       componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
@@ -266,19 +271,49 @@ function restoreFromString(msaString){        //msaString is the string inside t
                       }
                       break;
                   case "Slider":
-                      componentHTML = "<div>Non so cosa sia</div>";
+                      componentHTML = "<div id='"+id+"' class='drawn-element slider value='"+application.screens[i].components[j].specificAttributes['value']+"></div>";
                       break;
                   case "Progress":
                       componentHTML = "<progress id='"+id+"' class='drawn-element progress' value='"+application.screens[i].components[j].specificAttributes['value']+"/>";
                       break;
-                default: 
-                      componentHTML = "<div> Couldn't restore this element </div>";
+                  case "Image":
+                      componentHTML = "<img id='"+id+"' class='drawn-element image' />";
+                      break;
+                  case "ListView":
+                      componentHTML = "<div id='"+id+"' class='drawn-element listview'/>";
+                      break;
+                  case "HtmlView":
+                      componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview'></iframe>";
+                      break;
+                  case "WebView":
+                      componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview'></iframe>";
+                      break;
+                  case "TabView":
+                      componentHTML = "<div id='"+id+"' class='drawn-element tabview'></div>";
+                      break;
+                  case "SegmentedBar":
+                      componentHTML = "<div id='"+id+"' class='drawn-element segmentedBar'></div>";
+                      break;
+                  case "DatePicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element datepicker'></div>";
+                      break;
+                  case "TimePicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element timepicker'></div>";
+                      break;
+                  case "ListPicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element listpicker'></div>";
+                      break;
+                  case "ActivityIndicator":
+                      componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator'></div>";
+                      break;
+                  default: 
+                      console.log("Warning: element with id: "+id+" could not be restored!");
                 }
                 $("#"+i).append(componentHTML);
                 $("#"+j).attr("style",application.screens[i].components[j].style);
                 $("#"+j).addClass(application.screens[i].layout);
                 $("#"+j).addClass(platformToPreview);   //works?
-                $("#"+j).draggable({ containment: "parent" });
+                $("#"+j).draggable({ containment: "parent", cancel: false});
 
             }
             $("#"+i).prepend(`<div class="header drawn-element `+platformToPreview+`"></div>
@@ -298,11 +333,14 @@ function openFileInCodeEditor(fileName){
         case "msa": restoreProjectFromFile();
             break;
         //case "json":  PUT THEMES HERE
-        default: 
+        default:{
             fs.readFile(fileName, 'utf8', function (err,data) {
                 $("#propertyPanel").hide();
                 codeEditor.setValue(String(data));
             });
+            $("#componentsContainer").hide();
+
+        }
     }                        
 }
 
@@ -328,7 +366,7 @@ function dirTree(filename) {
         // something else!
         info.type = "file";
     }
-
+    console.log(info);
     return info;
 }
 
@@ -350,6 +388,27 @@ function populateFileExplorer(info){
                                 });
 }
 
+function adaptModelForTree(){
+    var adaptedModel = {};
+    adaptedModel.children = [];
+    adaptedModel.folder = true;
+    adaptedModel.title = "Components";
+
+    for (var i in application.screens){
+        var count = adaptedModel.children.push({
+            title: application.screens[i].id,
+            folder: true,
+            parentWindow: application.screens[i].id,
+            children: []});
+        for (var j in application.screens[i].components){
+            adaptedModel.children[count-1].children.push({
+                title: application.screens[i].components[j].id,
+                parentWindow: application.screens[i].id});
+        }
+    }
+    return adaptedModel;    
+}
+
 function createFileExplorer(){
     $("#fileExplorer").html("");
     var content = dirTree(workingPath+"/"+projectName);
@@ -357,8 +416,16 @@ function createFileExplorer(){
 }
 
 
-function createComponentsExplorer(components){
-    
+
+function createComponentsExplorer(){
+    content = adaptModelForTree();
+    $("#modelExplorer").fancytree({
+        source: content,
+        activate: function(event, data){
+            node = data.node;
+            selectElement($("#"+node.title)[0], $("#"+node.data.parentWindow)[0]);
+        }
+    });
 }
 
 /*function bindAction(targetElement, senderComponent, senderWindow){

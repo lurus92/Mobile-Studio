@@ -21,6 +21,15 @@ function translateScreen(screen){
                     </Page>`;
             //return concat("x","y");
             break;
+        case "wrapLayout":
+            return `<Page id="`+screen.id+`" loaded="loadView`+screen.id+`">
+                        <WrapLayout>
+                            `+translateComponents(screen)+`
+                        </WrapLayout>
+                    </Page>`;
+            //return concat("x","y");
+            break;
+        
         /*default:
             return "<Page>"+translateComponents(screen)+"</Page>" */
     }                          
@@ -38,10 +47,15 @@ function translateComponents(screen){
                         <Label id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
                         `;
                 break;
-            case "Button":
+            case "Button":{
+                var actionsPointers = "";
+                if (screen.components[i].actions)
+                    for(var j in screen.components[i].actions)
+                        actionsPointers = actionsPointers+j+"='"+j+"Action' ";
                 componentsTranslated += `
-                        <Button id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        <Button id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" `+actionsPointers+` />
                         `;
+                }
                 break;
             case "TextField": 
                 componentsTranslated += `
@@ -49,7 +63,7 @@ function translateComponents(screen){
                         `;
                 break;
             case "TextView": componentsTranslated += `
-                        <TextField id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
+                        <TextView id="`+screen.components[i].id+`" text="`+screen.components[i].specificAttributes["text"]+`" />
                         `;
                 break;
             case "SearchBar": componentsTranslated += `
@@ -57,8 +71,64 @@ function translateComponents(screen){
                         `;
                 break;
             case "Switch": componentsTranslated += `
-                        <SearchBar id="`+screen.components[i].id+`" checked="`+screen.components[i].specificAttributes["set"]+`" />
+                        <Switch id="`+screen.components[i].id+`" checked="`+screen.components[i].specificAttributes["set"]+`" />
                         `; 
+                break;
+            case "Slider": componentsTranslated += `
+                        <Slider id="`+screen.components[i].id+`" value="`+screen.components[i].specificAttributes["value"]+`" />
+                        `; 
+                break;
+            case "Progress": componentsTranslated += `
+                        <Progress id="`+screen.components[i].id+`" value="`+screen.components[i].specificAttributes["value"]+`" />
+                        `; 
+                break;
+                //Check activityIndicator busy property
+            case "ActivityIndicator": componentsTranslated += `
+                        <ActivityIndicator id="`+screen.components[i].id+`" busy="`+screen.components[i].specificAttributes["busy"]+`" />
+                        `;
+                break;
+            case "Image": componentsTranslated += `
+                        <Image id="`+screen.components[i].id+`" src="`+screen.components[i].specificAttributes["src"]+`" />
+                        `; 
+                break;
+            //PUT SOMETHING IN LIST! (access to listElements array in model)
+            case "ListView": componentsTranslated += `
+                        <ListView id="`+screen.components[i].id+`" />
+                        `; 
+                break;
+            case "HtmlView": componentsTranslated += `
+                        <HtmlView id="`+screen.components[i].id+`" html="`+screen.components[i].specificAttributes["html"]+`" />
+                        `; 
+                break;
+            case "WebView": componentsTranslated += `
+                        <WebView id="`+screen.components[i].id+`" src="`+screen.components[i].specificAttributes["src"]+`" />
+                        `; 
+                break;
+            //PUT SOMETHING IN TABVIEW! (access to tabs array in model)
+            case "TabView": componentsTranslated += `
+                        <TabView id="`+screen.components[i].id+`"/>
+                        `; 
+                break;
+            //PUT SOMETHING IN SegmentedBar! (access to items array in model)
+            case "SegmentedBar": componentsTranslated += `
+                        <SegmentedBar id="`+screen.components[i].id+`"/>
+                        `; 
+                break;
+            case "DatePicker": componentsTranslated += `
+                        <DatePicker id="`+screen.components[i].id+`"/>
+                        `; 
+                break;
+            case "TimePicker": componentsTranslated += `
+                        <TimePicker id="`+screen.components[i].id+`"/>
+                        `; 
+                break;
+            //PUT SOMETHING IN ListPicker! (access to items array in model)
+            case "ListPicker": componentsTranslated += `
+                        <ListPicker id="`+screen.components[i].id+`"/>
+                        `; 
+                break;
+                
+                
             default: componentsTranslated+="";    
         }
     }
@@ -71,8 +141,8 @@ function translateScreenStyle(screen){
     //We have ALL the styles of the window, also the unnecessary ones needed to position itself in the editor
     var allStyles = allStyles.split(";");
     var usefulStyles = "";
-    //The useful styles starts at 6th position
-    for (var i = 6; i<allStyles.length-1; i++) usefulStyles+= (allStyles[i]+";");
+    //The useful styles starts at 6th position REALLY??? NO. Translate all Style.
+    for (var i = 0; i<allStyles.length; i++) usefulStyles+= (allStyles[i]+";");
     var styleWindow=`#`+screen.id+`{
                 `+usefulStyles+`
             }`;
@@ -99,19 +169,33 @@ function translateActions(screen){
        //FOR NOW WE ONLY HANDLE TAP ON BUTTONS
        if (screen.components[i].isDynamic){
             js += `var `+i+`=view.getViewById(page, "`+i+`");`;
-            for (action in screen.components[i].actions)    //We handle multiple actions per element
+            /*for (action in screen.components[i].actions)    //We handle multiple actions per element
                 switch (action){                            //We consider only navigation to different pages
-                   case "navTo": js+=`
+                   case "onclick": js+=`
                         `+i+`.on("tap", function(){
                             frame.topmost().navigate({moduleName: "`+screen.components[i].actions[action]+`"});
                         });`
                    break;
-                   default: js+="";
-               }
+                   default: js+="";*/
+              // }
                         
         }
    }
         js += `}
                 exports.loadView`+screen.id+` = onLoad;`
+        
+
+        //Actions at the end!
+        if (screen.components[i].actions)
+            for (action in screen.components[i].actions)    //We handle multiple actions per element
+                switch(action){
+                    case "tap":  js += `
+                        exports.`+action+`Action = function (args){
+                            frame.topmost().navigate({moduleName: "`+screen.components[i].actions[action]+`"});
+                        }`
+
+                }
+           
+        
         return js;
 }

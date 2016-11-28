@@ -121,10 +121,15 @@ td {
 .drawn-element{
     background:white;
     color:lightgray;
-    border-style: solid;
+    /*border-style: solid;*/
     border-width: 1px;
     border-color: lightgray;
     display: block;
+}
+
+.window{
+    border-style: solid;
+
 }
 
 .component{
@@ -141,11 +146,17 @@ td {
     display: block;
 }
 
-.component .wrapLayout{
+
+.drawn-element .wrapLayout{
     display: inline-block;
 }
 
-.component .absoluteLayout{
+.drawn-element .wrapLayout .searchbar{
+    display: none;
+}
+
+
+.drawn-element .absoluteLayout{
     position: absolute;
 }
 
@@ -236,13 +247,6 @@ td {
     overflow: scroll;
 }
 
-#modelExplorer span{
-    font-size: small;
-    display: block;
-    padding: 2%;
-    width: 96%;
-}
-
 .secondLevelModel{
     padding: 0;
     padding-left: 10%;
@@ -283,4 +287,8 @@ svg{
 
 .fancytree-container{
     height: 100%;
+}
+
+.button:focus{
+    outline: none;
 }

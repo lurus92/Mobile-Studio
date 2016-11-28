@@ -7,6 +7,7 @@
         <link rel="stylesheet" href="css/jqueryUI/jquery-ui.theme.min.css">
         <link rel="stylesheet" href="css/jqueryUI/jquery.ui.ruler.css">
         <link rel="stylesheet" href="css/ios.css">
+        <link rel="stylesheet" href="css/android.css">
         
         <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
         <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
@@ -37,12 +38,15 @@
 
         <script>
             
+            componentsCounter = 0;      //To insert in initialization
+            scaleFactor = 1;
+            
             //SupportedCSS: CSS tags that can be translated by NS
             var supportedCSS = ['color','background-color','background-image','background-repeat','background-position','background-size','border-color','border-width','border-radius','font','font-family','font-size','font-style','font-weight','text-align','text-decoration','text-transform','letter-spacing','z-index','clip-path','vertical-align','horizontal-align','margin','margin-top','margin-right','margin-bottom','margin-left','width','height','min-width','min-height','padding','padding-top','padding-right','padding-bottom','padding-left','visibility','opacity'];
             
             //var messageReceived = null;
             window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');
-            require('./js/jquery-ui.min.js');
+            require('./js/jquery-ui.js');
             require('./js/jquery.ui.ruler.js');
             require('./js/colResizable-1.6.min.js');
             //require('./js/jstree/jstree.js');
@@ -78,7 +82,7 @@
                     }
                 });
                 
-
+                
                 
                 $("#mainContent").css("zoom",1);
 
@@ -97,6 +101,7 @@
                         else
                            // $(this).zoomTo({targetsize:0.75, duration:600});     //ZOOMOOZ
                             newZoom = parseFloat($("#mainContent").css("zoom"))*0.9;
+                        scaleFactor = newZoom;
                         $(this).animate({'zoom':newZoom},1);
                         console.log("newZoom: "+newZoom+" wheelData: "+e.originalEvent.wheelDelta);
 
@@ -155,10 +160,10 @@
             }
             
             function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //compWin = not defined if Window, id if comp
+                var newId = this.value;
                 switch(attrType){
                     case "id":{
-                        newId = this.value;
-                        $("#"+oldAttr).attr("id",newId);
+                        /*Model update 
                         if(!compWin){
                             if (application.screens[""+newId+""]){
                                 alert("You must use an unique id!");
@@ -167,17 +172,27 @@
                             application.screens[""+oldAttr+""].id = ""+newId+"";
                             application.screens[""+newId+""] = application.screens[""+oldAttr+""];
                             delete application.screens[""+oldAttr+""];
-                        }else{
-                            if (application.screens[""+winId+""].components[""+newId+""]){
-                                alert("You must use an unique id!");
+                        }else{*/
+                            //console.log(winId);
+                            //TODO: check unicity of the id
+                            var modelStringified = JSON.stringify(application);
+                            //If the id is already present in the stringified it COULD mean that is already used. Improve this
+                            if (modelStringified.indexOf(""+newId+"")>0){
+                                alert("This ID seems to be already used by another component");
                                 return;
                             }
-                            application.screens[""+winId+""].components[""+oldAttr+""].id = ""+newId+"";
-                            application.screens[""+winId+""].components[""+newId+""] = application.screens[""+winId+""].components[""+oldAttr+""];
-                            delete application.screens[""+winId+""].components[""+oldAttr+""];
-
-                        }
-                        $("#titlePanelDetail").val(newId);
+                            application = {};
+                            var reOldKey = new RegExp(oldAttr,"g");
+                            modelStringified = modelStringified.replace(reOldKey, ""+newId+"");
+                            application = JSON.parse(modelStringified);
+                            //BETTER IDEA: stringify all the model, change all references to the old id with the new id, restore model (eliminate in this way all dependancies)
+                        //}
+                        //Front end update
+                        $("#"+oldAttr).attr("id",newId);
+                        if(!compWin) $("#"+newId).find("span").text(newId); //if starting window put starting window
+                        
+                        //Update panel. The simplest way to do it's close it!
+                        $("#propertyPanel").hide();
                     }
                         break;
                     case "class": //similar to ID
@@ -230,14 +245,32 @@
                                 <td> Class </td>
                                 <td style="float:right;"><input type="text" placeholder="unset" /></td>
                             </tr>`;
-              if (!compId) attributes+=`              
+              if (!compId){ attributes+=`              
                             <tr>
                                 <td> Layout </td>
                                 <td style="float:right;">
-                                    <input type="text" value="`+attributeToSearch.layout+`"/>
+                                    <!--input type="text" value="`+attributeToSearch.layout+`"/-->
+                                    <select id="layoutSelector">
+                                        <option value="stackLayout">StackLayout</option>
+                                        <option value="gridLayout">GridLayout</option>
+                                        <option value="absoluteLayout">AbsoluteLayout</option>
+                                        <option value="dockLayout">DockLayout</option>
+                                        <option value="wrapLayout">WrapLayout</option>
+                                        
+                                                    </select>
                                 </td>
-                            </tr>`; //Insert here other window-specific attributes
-                else for(var i in attributeToSearch.specificAttributes){
+                            </tr>`;
+                            var checked = "";
+                            if (attributeToSearch.isStartingWindow) checked="checked='checked'";
+                            attributes+=`<tr>
+                                <td> Starting Window </td>
+                                <td style="float:right;">
+                                    <input type="checkbox" id="checkStartingWindow" `+checked+`"/>
+                                </td>
+                            </tr>
+
+`; //Insert here other window-specific attributes
+                    }else for(var i in attributeToSearch.specificAttributes){
                     attributes+=`              
                             <tr>
                                 <td>`+i+`</td>
@@ -249,13 +282,27 @@
               attributes +=`
                         </tbody>
                     </table>`;
-
               var actions = `<table>
-                        <tbody>
+                        <tbody>`;
+              //console.log("windId: "+winId+" compID:"+compId);
+              for (var i in attributeToSearch.supportedActions){
+                  if(!application.screens[""+winId+""].components[""+compId+""].actions[""+attributeToSearch.supportedActions[i]+""])  //Action not yet assigned
+                    actions += `
                             <tr>
-                                <td> onclick </td>
-                                <td style="float:right;"><input type="button" onclick="drawLine.call(this,event,'`+compId+`','`+winId+`');"/></td>
+                                <td> `+attributeToSearch.supportedActions[i]+` </td>
+                                <td style="float:right;"><input type="button" onclick="drawLine.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`');"/></td>
                             </tr>
+                            `;
+                  else
+                     actions += `
+                        <tr>
+                            <td> `+attributeToSearch.supportedActions[i]+` </td>
+                            <td style="float:right;"><button onclick="deleteAction.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`')"> ENABLED </button></td>
+                        </tr>
+                        `;
+                      
+                }
+                actions+=`
                         </tbody>
                     </table>`
               var containingWindow;
@@ -274,6 +321,30 @@
                      <input value="DELETE" type="submit" onclick="deleteElement('`+attributeToSearch.id+`','`+containingWindow+`');">`;
 
               $("#properties").html(panelDetailContent); 
+                
+              $("#layoutSelector").change(function(){
+                  application.screens[winId].layout = this.value;
+                  $(".drawn-element").removeClass("stackLayout");
+                  $(".drawn-element").removeClass("gridLayout");
+                  $(".drawn-element").removeClass("absoluteLayout");
+                  $(".drawn-element").removeClass("dockLayout");
+                  $(".drawn-element").removeClass("wrapLayout");
+                  $(".drawn-element").addClass(this.value);
+              });
+                
+              $("#checkStartingWindow").change(function(){
+                  application.startingScreen = winId;
+                  //eliminate flag for all the other windows
+                  for (var i in application.screens){
+                      if (i==winId) continue;
+                      application.screens[i].isStartingWindow = false;
+                      $("#"+i).find("span").text(i);
+                  }
+                  application.screens[winId].isStartingWindow = true;
+                  $("#"+winId).find("span").text(winId+" (Starting Window)");
+
+              })
+              
             }
             
             function setSelectionBox(elementToWrap){
@@ -283,11 +354,80 @@
                 $("#selector").css("height",elementToWrap.target.style.height);
             }
             
+            function normalizePosition(oldPosition){
+                //Position should take care of the current zoom level of canvas
+                return oldPosition*parseFloat($("#mainContent").css("zoom"));
+            }
+            
+            function selectElement(element,window){
+                //console.log("parameters received: "+element+" "+window);
+                if (element.id.substring(0,3)=="win"){
+                          buildPropertiesPanel(""+element.id+"",null);
+                          //setSelectionBox(sender)
+                          $("#propertyPanel").show();
+                      }else{
+                 //       console.log(sender);
+
+                          buildPropertiesPanel(""+window.id+"",""+element.id+"");
+                          //setSelectionBox(sender)
+
+                          $("#propertyPanel").show(); 
+                      }
+                $(".drawn-element").removeClass('selected-element');
+                $(element).addClass('selected-element');
+            }
+            
             function initializeWindowEvents(){
+                
+                
+                
+                /*FIX FOR JQUERY UI ZOOM BUG
+                
+                $.ui.ddmanager.prepareOffsets = function( t, event ) {
+                var i, j,
+                    m = $.ui.ddmanager.droppables[ t.options.scope ] || [],
+                    type = event ? event.type : null, // workaround for #2317
+                    list = ( t.currentItem || t.element ).find( ":data(ui-droppable)" ).addBack();
+
+                droppablesLoop: for ( i = 0; i < m.length; i++ ) {
+
+                    // No disabled and non-accepted
+                    if ( m[ i ].options.disabled || ( t && !m[ i ].accept.call( m[ i ].element[ 0 ], ( t.currentItem || t.element ) ) ) ) {
+                        continue;
+                    }
+
+                    // Filter out elements in the current dragged item
+                    for ( j = 0; j < list.length; j++ ) {
+                        if ( list[ j ] === m[ i ].element[ 0 ] ) {
+                            m[ i ].proportions().height = 0;
+                            continue droppablesLoop;
+                        }
+                    }
+
+                    m[ i ].visible = m[ i ].element.css( "display" ) !== "none";
+                    if ( !m[ i ].visible ) {
+                        continue;
+                    }
+
+                    // Activate the droppable if used directly from draggables
+                    if ( type === "mousedown" ) {
+                        m[ i ]._activate.call( m[ i ], event );
+                    }
+
+                    m[ i ].offset = m[ i ].element.offset();
+                    m[ i ].proportions({ width: m[ i ].element[ 0 ].offsetWidth * parseFloat($("#mainContent").css("zoom")).currentZoom, height: m[ i ].element[ 0 ].offsetHeight * parseFloat($("#mainContent").css("zoom")) });
+                }
+
+                };*/
+                
+                
+                
                 $(".window").draggable();
                   //DetailPanel
                   $(".window").click(function(sender){
-                      //console.log(sender);
+                      control = sender;
+                      selectElement(sender.target,this);
+                      /*
                       if (sender.target.id.substring(0,3)=="win"){
                           buildPropertiesPanel(""+sender.target.id+"",null);
                           //setSelectionBox(sender)
@@ -299,7 +439,7 @@
                           //setSelectionBox(sender)
 
                           $("#propertyPanel").show(); 
-                      }
+                      }*/
                   });
                   $(".window").droppable({
                                   drop: function( event, ui ) {
@@ -316,14 +456,17 @@
                                         var componentHTML = "";
                                         var type = ui.draggable[0].innerText;
                                         //TODO: Create better ID
-                                        id = type+application.screens[this.id].numberOfComponents;
+                                        componentsCounter++;
+                                        id = type+componentsCounter;
                                         var layout = application.screens[this.id].layout;
                                         switch (type){
+                                                //Strategy to offer a good visualization: try to build html elements that resemble the one in the mobile. If not possible, use div and proper backgrounds
+                                                
                                               case "Label": 
                                                   componentHTML = "<div id='"+id+"' class='drawn-element label  "+layout+" "+platformToPreview+"'>Label</div>";
                                                   break;        
                                               case "Button":
-                                                  componentHTML = "<button id='"+id+"' class='drawn-element button "+layout+" "+platformToPreview+"' value='Button'></button>";
+                                                  componentHTML = "<button id='"+id+"' class='drawn-element button "+layout+" "+platformToPreview+"' value='Button'>Button</button>";
                                                   break;
                                               case "TextField":
                                                   componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield "+layout+" "+platformToPreview+"' value='Insert Text Here'/>";
@@ -334,24 +477,48 @@
                                               case "SearchBar":
                                                   componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar "+layout+" "+platformToPreview+"' value='Search Here'/>";
                                                   break;
-                                              case "Switch":
+                                              case "Switch":            //WATCH THE SWITCH!
                                                   componentHTML = "<input type='checkbox' id='"+id+"' checked='checked' class='drawn-element switch "+layout+" "+platformToPreview+"'/>";
                                                   break;
                                               case "Slider":
-                                                  componentHTML = "<input type='range' id='"+id+"' class='drawn-element slider "+layout+" "+platformToPreview+"' value='50'/>";
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element slider "+layout+" "+platformToPreview+"' value='50'></div>";
                                                   break;
                                               case "Progress":
                                                   componentHTML = "<progress id='"+id+"' class='drawn-element progress "+layout+" "+platformToPreview+"'/>";
                                                   break;
                                               case "ActivityIndicator":
-                                                  componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'/>";
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'></div>";
                                                   break;
                                               case "Image":
-                                                  componentHTML = "<img id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'/>";
+                                                  componentHTML = "<img id='"+id+"' class='drawn-element image "+layout+" "+platformToPreview+"'/>";
                                                   break;
+                                              case "ListView":      //MANAGE LISTVIEWS!
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element listview "+layout+" "+platformToPreview+"'/>";
+                                                  break;
+                                              case "HtmlView":
+                                                  componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview "+layout+" "+platformToPreview+"'></iframe>";
+                                                  break;
+                                              case "WebView":
+                                                  componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview "+layout+" "+platformToPreview+"'></iframe>";
+                                                  break;
+                                              case "TabView":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element tabview "+layout+" "+platformToPreview+"'></div>";
+                                                  break;
+                                              case "SegmentedBar":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element segmentedBar "+layout+" "+platformToPreview+"'></div>";
+                                                  break;
+                                              case "DatePicker":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element datepicker "+layout+" "+platformToPreview+"'></div>";
+                                                  break;
+                                              case "TimePicker":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element timepicker "+layout+" "+platformToPreview+"'></div>";
+                                                  break;
+                                              case "ListPicker":
+                                                  componentHTML = "<div id='"+id+"' class='drawn-element listpicker "+layout+" "+platformToPreview+"'></div>";
+
                                                 
                                               default:
-                                                  componentHTML = "<div>Component Unavailable</div>";
+                                                  console.log("Component not visualizable inside window");
                                       
                                       }
                                       //$(componentHTML).addClass(application.screens[this.id].layout);
@@ -368,19 +535,19 @@
                                       application.screens[this.id].components[""+id+""] = component;
                                       application.screens[this.id].numberOfComponents++;
                                       $("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
-                                      $("#"+id).draggable({ containment: "parent" });
+                                      $("#"+id).draggable({ containment: "parent", cancel:false });
                                      
                                   }else{
                                         //Behaviour here to move objects (STACK LAYOUT)
                                       console.log("moved object");
                                       var movingObject = $(ui.draggable[0]).clone();
                                       $(ui.draggable[0]).remove();
-                                      var target = document.elementFromPoint(event.clientX,event.clientY);
+                                      var target = document.elementFromPoint(normalizePosition(event.clientX),normalizePosition(event.clientY));
                                       if (!application.screens[""+target.id+""]){
                                           //the target is not a window
                                           $(movingObject).insertAfter(target);
                                           $(movingObject).css("top","0px");
-                                          $(movingObject).draggable({ containment: "parent" });
+                                          $(movingObject).draggable({ containment: "parent", cancel:false });
                                           //UPDATE MODEL!!!!
                                           //Bottleneck: to update the model we need to rewrite it:
                                           var oldComponentsModule = application.screens[this.id].components;
@@ -398,7 +565,7 @@
                                           //the target is an empty space in a window
                                           $(this).append(movingObject);
                                           $(movingObject).css("top","0px");
-                                          $(movingObject).draggable({ containment: "parent" });
+                                          $(movingObject).draggable({ containment: "parent", cancel:false  });
                                           //UPDATE MODEL!!!
                                           var toRestore = application.screens[this.id].components[movingObject[0].id];
                                           delete application.screens[this.id].components[movingObject[0].id];
@@ -410,10 +577,19 @@
                       });
                 
                 
-                $(".drawn-element").click(function(){
-                  $(this).toggleClass('selected-element');
+                /*$(".drawn-element").click(function(){
+                  $(".drawn-element").removeClass('selected-element');
+                    var selected = document.elementFromPoint(event.clientX,event.clientY);
+                    $(selected).addClass('selected-element');
                     //console.log(this);
-                })
+                });*/
+                
+                /*$("#mainContent").click(function(){
+                    $(".drawn-element").removeClass('selected-element');
+                    $("#propertyPanel").hide();
+
+                });*/
+                
             }
 
 
@@ -462,14 +638,18 @@
                       
                       switch (ui.draggable[0].innerText){
                           case "Screen": {
-                              var leftOffset = ui.position.left - $("#componentsPanel").width();
+                              var leftOffset = normalizePosition(ui.position.left - $("#componentsPanel").width());
                               var newId = application.numberOfScreens;
                               var newScreen = new model.Screen("win"+newId);
                               application.screens["win"+newId] = newScreen;
                               application.numberOfScreens++;
                               var firstWindowString = ""; 
-                              if (application.numberOfScreens==1) firstWindowString = "(Starting Window)";
-                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element `+platformToPreview+`' style='top:`+ui.position.top+`; left: `+leftOffset+`;'>
+                              if (application.numberOfScreens==1){ 
+                                  firstWindowString = "(Starting Window)";
+                                  application.startingScreen = "win"+newId;
+                                  application.screens["win"+newId].isStartingWindow = true;
+                              }
+                              var sampleWindow = `<div id='win`+newId+`' class='window drawn-element `+platformToPreview+`' style='top:`+normalizePosition(ui.position.top)+`; left: `+leftOffset+`;'>
                                                   <span>win`+newId+` `+firstWindowString+`</span>
                                                   <div class="header drawn-element `+platformToPreview+`"></div>
                                                   </div>`;
@@ -492,8 +672,13 @@
                     case "buildSucceeded": new Notification("Build Succeeded","");
                 }
             }*/
+            
+            function deleteAction(event, compId, winId,action){
+                application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = null;
+                this.text = "";
+            }
             var lineActive = false;
-            function drawLine(event, compId, winId){
+            function drawLine(event, compId, winId,action){
                 console.log(event);
                 //console.log(sender);
                 console.log(compId);
@@ -505,7 +690,7 @@
                     //bindAction(document.elementFromPoint(event.clientX,event.clientY),compId,winId);
                     console.log("win "+winId+" comp: "+compId);
                     application.screens[""+winId+""].components[""+compId+""].isDynamic = true;
-                    application.screens[""+winId+""].components[""+compId+""].actions["navTo"] = document.elementFromPoint(event.clientX,event.clientY).id;
+                    application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = document.elementFromPoint(normalizePosition(event.clientX),normalizePosition(event.clientY)).id;
                     //console.log(document.elementFromPoint(event.clientX,event.clientY));
                     lineActive = false;
                     document.onmousemove = null;

@@ -1,49 +1,63 @@
-/*DEFAULT STYLE VALUES FOR IOS*/ 
+/*DEFAULT STYLE VALUES FOR ANDROID*/ 
 
-.ios.window{
+.android.window{
     /*width: 1334px;
     height: 750px;*/
-    width: 375px;
-    height: 667px;
+    width: 360px;
+    height: 640px;
+    font-family: "Roboto","Helvetica"
 }
 
-.ios.header{
-    background-image: url("../img/components/ios/statusbar.png");
-    background-size: cover;
-    height: 11px;
+.android.header{
+    background-image: url("../img/components/android/header.png");
+    background-size: contain;
     width: 100%;
-    border: none;  
+    height: 92px;
+    border: none; 
 }
 
-.ios.label{
+.android.label{
     margin-top: 2px;
     margin-bottom: 2px;
     color: black;
-    background-color: transparent;
+    font-size: 10px;
 }
 
-.ios.button{
+.android.button{
     font-size: 35px;
     min-height: 20px;
-    color: rgb(14,122,254);
-    border: none;
-    background-color: transparent;
+    color: black;
+    padding: 2px;
+    background-color: lightgray;
+    border-style: solid;
+    border-width: 0px;
+    border-radius: 2px;
+    width: initial;
+    margin: 0 auto;
+    padding-right: 10px;
+    padding-left: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    width: initial;
 }
 
-.ios.textfield{
+/*Note that the searchbar is a bit different, providing a small X on the right*/
+.android.textfield, .android.textarea, .android.searchbar {
     background-color: transparent;
-    border: none;
-    color: black;
+    border-bottom-color: lightgray;
+    border-bottom-style: inset;
+    border-top: none;
     font-size: 14px;
-}
-
-.ios.textarea{
-    background-color: transparent;
-    border: none;
+    border-right: none;
+    border-left: none;
     color: black;
-    font-size: 12px;
+    margin-left: 2%;
+    width: 94%;
 }
 
+
+/*
 .ios.searchbar{
     background-image: url("../img/components/ios/searchbar.png");
     background-size: cover;
@@ -53,8 +67,8 @@
     padding-left: 30px;
     color: black;
 }
-
-.ios.progress{
+*/
+.android.progress{
     height: 1px;
 }
 
@@ -68,7 +82,7 @@
     color: black;
 }
 
-/*Switch Things*/
+/*Switch Things
 
 .ios.switch{
     display: none;
@@ -86,45 +100,11 @@ body:not(#foo) .ios.switch:checked + label{
 body:not(#foo) i.ios.switch + label{
     background-image: url("../img/components/ios/switchOff.png")
 }
-/*
-.ios.switch{
-    background-image: url("../img/components/ios/switchOff.png");
-    background-size: cover;
-    height: 10px;
-    border: none;
-}
-
-.ios.switch:checked{
-    background-image: url("../img/components/ios/switchOn.png");
-    background-size: cover;
-    height: 10px;
-    border: none;
-}
-END OF SWITCH*/
-
-
-.ios.slider::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  border: 1px solid #000000;
-  height: 36px;
-  width: 16px;
-  border-radius: 3px;
-  background: #ffffff;
-  cursor: pointer;
-  margin-top: -14px; /* You need to specify a margin in Chrome, but in Firefox and IE it is automatic */
-  box-shadow: 1px 1px 1px #000000, 0px 0px 1px #0d0d0d; /* Add cool effects to your sliders! */
-}
+*/
 
 
 
-.ios.slider::-webkit-slider-runnable-track {
-  width: 100%;
-  height: 1px;
-  cursor: pointer;
-  background: #3071a9;
-}
-
-.ios.progress{
+.android.progress{
     width: 100%;            /*NOT USEFUL*/
 }
 

@@ -87,7 +87,9 @@
             const {ipcRenderer} = require('electron');
             if(!workingPath){ alert("Please specify a valid folder"); return; }
             projectName = $("#nameProject").val();
-            if (projectName=="") alert("Please insert a name for the project");
+            if (projectName==""){ alert("Please insert a name for the project"); return;}
+            if (!parseFloat(projectName[0]) == false){ alert("Project names cannot start with a number"); return;}
+            
             /*var fs = new FileSystemManager(workingPath);
             alert(fs.getWorkingPath);*/
             else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath, projectName, false]);
@@ -102,6 +104,20 @@
             $("#dirProject").val(workingPath);
             }
         
+        function deleteHistory(){
+            //PUT HERE A CONFIRMATION DIALOG BOX
+            $("#listContainer").html("");
+            const {app} = require('electron').remote;
+            var homePath = app.getPath("userData");
+            fs.writeFile(homePath+"/history", "", function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+                console.log("Project History cleared");
+                existingPrj = false;
+                });
+            }
+                         
 
     </script>
   </head>
@@ -115,6 +131,14 @@
           <h4>The first cross-platform IDE for cross-platform mobile apps</h4>
           <br>
           <section id="projectsDrawer">
+               <h1 style="
+                    right: 0;
+                    font-size: 13px;
+                    vertical-align: bottom;
+                    /* position: relative; */
+                    line-height: 30px;
+                    /* color: #FF5722; */
+                " onclick="deleteHistory();">Delete History</h1>
                 <h1>Your Projects</h1>
                 <section id="listContainer"></section>
                 <button id="createNewProject">Create a new app</button>
