@@ -1,9 +1,17 @@
+::-webkit-scrollbar { 
+    display: none; 
+}
+
 body{
     margin: 0;
     padding: 0;
     font-family: "Helvetica Neue","Helvetica","Calibri";
     display: flex;
     overflow: hidden;
+}
+
+ul.fancytree-container{
+    border: none;
 }
 
 nav{
@@ -166,6 +174,7 @@ td {
 }
 
 .component{
+    text-align: left;
     width: 97%;
     margin-bottom: 1px;
     height: 60px;
@@ -173,6 +182,29 @@ td {
     margin: auto;
     z-index: 5;
 }
+
+.component-preview{
+    width: 40px;
+    height: 40px;
+    background-color: #2f2f2f;
+    float: left;
+    margin: 10;
+    border-radius: 20px;
+    background-size: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-image: none;
+}
+
+.component-description{
+    font-size: small;
+    color: gray;
+}
+
+.component-title{
+    margin-top: 10px;
+}
+
 
 .stackLayout{
     width: 100%;
@@ -259,7 +291,7 @@ td {
 
 #componentsContainer{
     overflow: scroll;
-    height: 100%;
+    height: 70%;
 }
 
 #fileExplorer{

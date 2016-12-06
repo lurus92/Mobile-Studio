@@ -652,11 +652,18 @@
                 
                 var components = ["Screen","Label","Button","TextField","TextView","SearchBar","Switch","Slider","Progress","ActivityIndicator","Image","ListView","HtmlView","WebView","TabView","SegmentedBar","DatePicker","TimePicker","ListPicker","Dialogs"];
                 
+                var componentsDescription = components;
+                
                 for(var i=0; i<components.length; i++){
                     /*if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>Screen</div>");
                     else if (i==1) $("#componentsPanel").append("<div class='component ui-widget-content'>TEXT</div>");
                     else $("#componentsPanel").append("<div class='component ui-widget-content'>Component "+i+"</div>");*/
-                    $("#componentsContainer").append("<div class='component ui-widget-content'>"+components[i]+"</div>");
+                    $("#componentsContainer").append(`
+                                <div class='component ui-widget-content'>
+                                    <div class="component-preview" style="background-image: url('img/components-icons/`+components[i]+`.png');" ></div>
+                                    <div class="component-title">`+components[i]+`</div>
+                                    <div class="component-description">`+componentsDescription[i]+`</div>
+                                </div>`);
                 }
                 
                 
@@ -667,8 +674,8 @@
                 $( "#mainContent" ).droppable({
                   drop: function( event, ui ) {
 
-                      
-                      switch (ui.draggable[0].innerText){
+                      //switch (ui.draggable[0].innerText){
+                      switch ($(ui.draggable[0]).find(".component-title").text()){
                           case "Screen": {
                               var leftOffset = normalizePosition(ui.position.left - $("#componentsPanel").width());
                               var newId = application.numberOfScreens;
