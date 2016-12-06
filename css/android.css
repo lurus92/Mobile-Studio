@@ -4,16 +4,26 @@
     /*width: 1334px;
     height: 750px;*/
     width: 360px;
-    height: 640px;
+    height: 540px;                        /*Size of the real content (exclude huge top bar)*/
     font-family: "Roboto","Helvetica"
+}
+
+.android.window span{
+    position: absolute;
+    top: -100px;
 }
 
 .android.header{
     background-image: url("../img/components/android/header.png");
     background-size: contain;
     width: 100%;
-    height: 92px;
-    border: none; 
+    height: 88px;
+    top: -81px;
+    position: absolute;
+    border: solid;
+    border-width: 1px;
+    left: -1px;
+    border-bottom: none;
 }
 
 .android.label{
@@ -21,6 +31,7 @@
     margin-bottom: 2px;
     color: black;
     font-size: 10px;
+    background-color: transparent;
 }
 
 .android.button{

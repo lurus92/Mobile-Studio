@@ -29,6 +29,13 @@ function translateScreen(screen){
                     </Page>`;
             //return concat("x","y");
             break;
+        case "absoluteLayout":
+            return `<Page id="`+screen.id+`" loaded="loadView`+screen.id+`">
+                        <AbsoluteLayout>
+                            `+translateComponents(screen)+`
+                        </AbsoluteLayout>
+                    </Page>`;
+        default: alert("Cannot translate layout.");
         
         /*default:
             return "<Page>"+translateComponents(screen)+"</Page>" */

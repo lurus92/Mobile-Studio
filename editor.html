@@ -249,15 +249,13 @@
                             <tr>
                                 <td> Layout </td>
                                 <td style="float:right;">
-                                    <!--input type="text" value="`+attributeToSearch.layout+`"/-->
                                     <select id="layoutSelector">
                                         <option value="stackLayout">StackLayout</option>
-                                        <option value="gridLayout">GridLayout</option>
                                         <option value="absoluteLayout">AbsoluteLayout</option>
+                                        <option value="gridLayout">GridLayout</option>
                                         <option value="dockLayout">DockLayout</option>
                                         <option value="wrapLayout">WrapLayout</option>
-                                        
-                                                    </select>
+                                    </select>
                                 </td>
                             </tr>`;
                             var checked = "";
@@ -324,12 +322,20 @@
                 
               $("#layoutSelector").change(function(){
                   application.screens[winId].layout = this.value;
-                  $(".drawn-element").removeClass("stackLayout");
-                  $(".drawn-element").removeClass("gridLayout");
-                  $(".drawn-element").removeClass("absoluteLayout");
-                  $(".drawn-element").removeClass("dockLayout");
-                  $(".drawn-element").removeClass("wrapLayout");
-                  $(".drawn-element").addClass(this.value);
+                  removeAllLayoutClasses($("#"+winId));
+                  removeAllLayoutClasses($("#"+winId).find(".drawn-element"));
+                  $("#"+winId).addClass(this.value);
+                  $("#"+winId).find(".drawn-element").addClass(this.value);
+                  $("#"+winId).find(".drawn-element").css("position","");
+                  //Elements should be resizable in certain layout
+                  /*if ((this.value=="absoluteLayout")||(this.value=="wrapLayout"))
+                    $(".drawn-element").resizable();*/
+                  
+                  //Some components cannot be visualized in some layouts!
+                  if (this.value != "stackLayout")  //Put here safe layouts
+                    if (($("#"+winId).find(".searchbar").length + 0) > 0)    //Replace 0 with the class of other "dangerous" components
+                      createPopover("Warning","Some components cannot be visualized in the selected layout");
+                  
               });
                 
               $("#checkStartingWindow").change(function(){
@@ -343,15 +349,40 @@
                   application.screens[winId].isStartingWindow = true;
                   $("#"+winId).find("span").text(winId+" (Starting Window)");
 
-              })
+              });
+                
+                
+              $("#layoutSelector").val(application.screens.win0.layout);                
+              $("#layoutSelector").change();
+
               
             }
             
+            
+            
+            function removeAllLayoutClasses(element){
+                  element.removeClass("stackLayout");
+                  element.removeClass("gridLayout");
+                  element.removeClass("absoluteLayout");
+                  element.removeClass("dockLayout");
+                  element.removeClass("wrapLayout");
+            }
+            
+            //TODO: remove following function
             function setSelectionBox(elementToWrap){
                 $("#selector").css("top",""+(parseFloat(elementToWrap.target.style.top)-3.0)+"")
                 $("#selector").css("left",""+(parseFloat(elementToWrap.target.style.left)-3.0)+"");
                 $("#selector").css("width",elementToWrap.target.style.width);
                 $("#selector").css("height",elementToWrap.target.style.height);
+            }
+            
+            function createPopover(title, description){
+                $("#popover").remove();
+                $("body").prepend(`
+                    <div id="popover">
+                        <h1>`+title+`</h1>
+                        <h2>`+description+`</h2>
+                    </div>`);
             }
             
             function normalizePosition(oldPosition){
@@ -366,19 +397,15 @@
                           //setSelectionBox(sender)
                           $("#propertyPanel").show();
                       }else{
-                 //       console.log(sender);
-
                           buildPropertiesPanel(""+window.id+"",""+element.id+"");
-                          //setSelectionBox(sender)
-
                           $("#propertyPanel").show(); 
                       }
                 $(".drawn-element").removeClass('selected-element');
-                $(element).addClass('selected-element');
+                if(!$(element).hasClass("header"))
+                    $(element).addClass('selected-element');
             }
             
             function initializeWindowEvents(){
-                
                 
                 
                 /*FIX FOR JQUERY UI ZOOM BUG
@@ -534,43 +561,49 @@
                                       //Creation of an attribute at run time:
                                       application.screens[this.id].components[""+id+""] = component;
                                       application.screens[this.id].numberOfComponents++;
-                                      $("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
+                                      //createComponentsExplorer();
+                                      //$("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
                                       $("#"+id).draggable({ containment: "parent", cancel:false });
                                      
                                   }else{
                                         //Behaviour here to move objects (STACK LAYOUT)
-                                      console.log("moved object");
-                                      var movingObject = $(ui.draggable[0]).clone();
-                                      $(ui.draggable[0]).remove();
-                                      var target = document.elementFromPoint(normalizePosition(event.clientX),normalizePosition(event.clientY));
-                                      if (!application.screens[""+target.id+""]){
-                                          //the target is not a window
-                                          $(movingObject).insertAfter(target);
-                                          $(movingObject).css("top","0px");
-                                          $(movingObject).draggable({ containment: "parent", cancel:false });
-                                          //UPDATE MODEL!!!!
-                                          //Bottleneck: to update the model we need to rewrite it:
-                                          var oldComponentsModule = application.screens[this.id].components;
-                                          application.screens[this.id].components = {};
-                                          for (var i in oldComponentsModule){
-                                              if (oldComponentsModule[i].id == movingObject[0].id) continue;
-                                              if (oldComponentsModule[i].id == target.id){
-                                                  application.screens[this.id].components[i] = oldComponentsModule[i];
-                                                  application.screens[this.id].components[movingObject[0].id] = oldComponentsModule[movingObject[0].id];
+                                      switch(layout){
+                                              
+                                          case "stackLayout":{
+                                              console.log("moved object");
+                                              var movingObject = $(ui.draggable[0]).clone();
+                                              $(ui.draggable[0]).remove();
+                                              var target = document.elementFromPoint(normalizePosition(event.clientX),normalizePosition(event.clientY));
+                                              if (!application.screens[""+target.id+""]){
+                                                  //the target is not a window
+                                                  $(movingObject).insertAfter(target);
+                                                  $(movingObject).css("top","0px");
+                                                  $(movingObject).draggable({ containment: "parent", cancel:false });
+                                                  //UPDATE MODEL!!!!
+                                                  //Bottleneck: to update the model we need to rewrite it:
+                                                  var oldComponentsModule = application.screens[this.id].components;
+                                                  application.screens[this.id].components = {};
+                                                  for (var i in oldComponentsModule){
+                                                      if (oldComponentsModule[i].id == movingObject[0].id) continue;
+                                                      if (oldComponentsModule[i].id == target.id){
+                                                          application.screens[this.id].components[i] = oldComponentsModule[i];
+                                                          application.screens[this.id].components[movingObject[0].id] = oldComponentsModule[movingObject[0].id];
+                                                      }else{
+                                                          application.screens[this.id].components[i] = oldComponentsModule[i];
+                                                      }
+                                                  }
                                               }else{
-                                                  application.screens[this.id].components[i] = oldComponentsModule[i];
+                                                  //the target is an empty space in a window
+                                                  $(this).append(movingObject);
+                                                  $(movingObject).css("top","0px");
+                                                  $(movingObject).draggable({ containment: "parent", cancel:false  });
+                                                  //UPDATE MODEL!!!
+                                                  var toRestore = application.screens[this.id].components[movingObject[0].id];
+                                                  delete application.screens[this.id].components[movingObject[0].id];
+                                                  application.screens[this.id].components[movingObject[0].id] = toRestore;
                                               }
-                                          }
-                                      }else{
-                                          //the target is an empty space in a window
-                                          $(this).append(movingObject);
-                                          $(movingObject).css("top","0px");
-                                          $(movingObject).draggable({ containment: "parent", cancel:false  });
-                                          //UPDATE MODEL!!!
-                                          var toRestore = application.screens[this.id].components[movingObject[0].id];
-                                          delete application.screens[this.id].components[movingObject[0].id];
-                                          application.screens[this.id].components[movingObject[0].id] = toRestore;
-                                      }  //$(movingObject).insertBefore(document.elementFromPoint(event.clientX,event.clientY));
+                                        }
+                                      }//$(movingObject).insertBefore(document.elementFromPoint(event.clientX,event.clientY));
                                       //console.log(document.elementFromPoint(event.clientX,event.clientY));
                                     }
                                   }
@@ -584,11 +617,13 @@
                     //console.log(this);
                 });*/
                 
-                /*$("#mainContent").click(function(){
-                    $(".drawn-element").removeClass('selected-element');
-                    $("#propertyPanel").hide();
+                $("#mainContent").click(function(event){
+                    if(document.elementFromPoint(event.pageX,event.pageY).id=="mainContent"){
+                        $(".drawn-element").removeClass('selected-element');
+                        $("#propertyPanel").hide();
+                    }
 
-                });*/
+                });
                 
             }
 
@@ -629,9 +664,6 @@
                     opacity: 0.7,
                     helper: "clone",
                 });
-                
-                
-                
                 $( "#mainContent" ).droppable({
                   drop: function( event, ui ) {
 
@@ -655,7 +687,8 @@
                                                   </div>`;
                               //$(sampleWindow).appendTo($(this));
                               $("#mainContent").append(sampleWindow);
-                              $("#modelExplorer").append("<span class='firstLevelModel'>win"+newId+" - Window </span>");
+                              //createComponentsExplorer();
+                             // $("#modelExplorer").append("<span class='firstLevelModel'>win"+newId+" - Window </span>");
                               initializeWindowEvents();
                                  
                       //ui.draggable.clone().appendTo($(this)).draggable();
@@ -666,17 +699,12 @@
                 
                 
             }
-            /*
-            function notifier(event){
-                switch(event){
-                    case "buildSucceeded": new Notification("Build Succeeded","");
-                }
-            }*/
             
             function deleteAction(event, compId, winId,action){
                 application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = null;
                 this.text = "";
             }
+            
             var lineActive = false;
             function drawLine(event, compId, winId,action){
                 console.log(event);
@@ -690,10 +718,30 @@
                     //bindAction(document.elementFromPoint(event.clientX,event.clientY),compId,winId);
                     console.log("win "+winId+" comp: "+compId);
                     application.screens[""+winId+""].components[""+compId+""].isDynamic = true;
-                    application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = document.elementFromPoint(normalizePosition(event.clientX),normalizePosition(event.clientY)).id;
+                    application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = document.elementFromPoint(event.clientX,event.clientY).id;
                     //console.log(document.elementFromPoint(event.clientX,event.clientY));
                     lineActive = false;
                     document.onmousemove = null;
+                    
+                    // ARROW
+                    var x1 = parseFloat($("#"+winId).css("left"))+parseFloat($("#"+winId).css("width"));
+                    var y1 = (parseFloat($("#"+winId).css("top"))+parseFloat($("#"+winId).css("height")))/2;
+                    var x2= parseFloat($("#"+document.elementFromPoint(event.clientX,event.clientY).id).css("left"));
+                    var y2= (parseFloat($("#"+document.elementFromPoint(event.clientX,event.clientY).id).css("top"))+ parseFloat($("#"+document.elementFromPoint(event.clientX,event.clientY).id).css("height")))/2;
+                    x2 -= 20; //To manage arrow
+                    
+                    if (x2>0)  //No sense if it is negative.    
+                        $("#mainContent").prepend(`
+                            <svg id="createGoodId" style="z-index: 0;" class="action-arrow" height="100%" width="100%" style="position: absolute;">
+                               <defs>
+                                <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+                                  <path d="M0,0 L0,6 L9,3 z" fill="rgb(0,0,255)"></path>
+                                </marker>
+                              </defs>
+                              <line id="lineAction" x1="`+x1+`" y1="`+y1+`" x2="`+x2+`" y2="`+y2+`" style="stroke:rgb(0,0,255);stroke-width:2" marker-end="url(#arrow)"></line>
+                            </svg>
+                                    `);
+                    
                     $("body").unbind("click",findElementAtClickListener);
                 }
                 
@@ -786,7 +834,7 @@
        <section id="consoleContainer" style="display:none;">Console
            <div id="console">Console Started</div>
        </section>
-        <table id="mainTable" style="position:absolute; height:100%;">
+        <table id="mainTable" style="position:absolute; height:100%; background-color: #f2f2f2;">
             <tr>
                 <td id="componentsPanel">
                     <h4 style="margin-left: 10px;">File Explorer</h4>

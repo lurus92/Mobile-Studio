@@ -234,6 +234,7 @@ function restoreFromString(msaString){        //msaString is the string inside t
     var payload = msaString.split("|")[2];
     componentsCounter = msaString.split("|")[3];
     application = JSON.parse(payload);      //Model rebuilt
+    applicationCopy = JSON.parse(payload);
     createComponentsExplorer();
     //clean the canvas
     $("#mainContent").html("");
@@ -318,6 +319,8 @@ function restoreFromString(msaString){        //msaString is the string inside t
             }
             $("#"+i).prepend(`<div class="header drawn-element `+platformToPreview+`"></div>
                                                   </div>`);
+        
+            $("#"+i).find(".drawn-element").css("position","");
 
 
         }
@@ -366,7 +369,7 @@ function dirTree(filename) {
         // something else!
         info.type = "file";
     }
-    console.log(info);
+    //console.log(info);
     return info;
 }
 
@@ -415,9 +418,23 @@ function createFileExplorer(){
     populateFileExplorer(content);
 }
 
+function updateModelExplorer(){
+    var tree = $('#modelExplorer').fancytree('getTree');
+    content = adaptModelForTree();
+    var newSourceOption = {
+        source: content,
+        activate: function(event, data){
+            node = data.node;
+            selectElement($("#"+node.title)[0], $("#"+node.data.parentWindow)[0]);
+        }
+    }
+    tree.reload(newSourceOption);
+}
+
 
 
 function createComponentsExplorer(){
+    $("#modelExplorer").html("");
     content = adaptModelForTree();
     $("#modelExplorer").fancytree({
         source: content,

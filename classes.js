@@ -34,7 +34,7 @@ class Component {
                 break;
                 case "Button":{
                     this.specificAttributes["text"] = "Button";
-                    this.supportedActions = ["tap","onlongtap"];
+                    this.supportedActions = ["tap","doubleTap","longPress"];
                 } 
                       break;
                   case "TextField": this.specificAttributes["text"] = "TextField";

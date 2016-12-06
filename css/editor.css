@@ -35,6 +35,32 @@ td {
     vertical-align: top;
 }
 
+#popover{
+    position: absolute;
+    bottom: 20px;
+    left: 36%;
+    text-align: center;
+    width: 30%;
+    color: white;
+    background-color: #2f2f2f;
+    padding: 4;
+    /* top: 0; */
+    z-index: 20;
+    border-radius: 20px;
+    opacity: 0.8;
+}
+
+#popover h1{
+    font-size: 14;
+    margin: 0;
+}
+
+#popover h2{
+    font-size: 12;
+    margin: 0;
+    font-weight: normal;
+}
+
 #propertyPanel{
     background-color: #2F2F2F;
     width: 200px;    /*WE NEED TO RESIZE IT?*/
@@ -96,13 +122,20 @@ td {
     
 }
 
+/*#mainTable{
+    position: relative;
+    zoom: 1;
+    position: absolute;
+    background-color: #f2f2f2;
+}*/
+
 #mainContent{
     /*background-color: red;*/
     /*z-index: -1;*/
     /*background-size: 20px 20px;
     background-image: linear-gradient(to right, lightgray 1px, transparent 1px), linear-gradient(to bottom, lightgray 1px, transparent 1px);*/
     overflow: scroll;
-    background-color: #f2f2f2
+    background-color: transparent;
 
 }
 
@@ -114,7 +147,7 @@ td {
 
 .window span{
     position: absolute;
-    top: -20px;
+    /*top: -20px;*/
     left: 0px;
 }
 
@@ -195,7 +228,7 @@ td {
 #loadingPanel h1{
     color: white;
     text-align: center;
-    position: relative;/
+    position: relative;
     top: 200px;
     font-size: 80px;
 }
@@ -291,4 +324,11 @@ svg{
 
 .button:focus{
     outline: none;
+}
+
+
+/*ELEMENTS NOT VISUALIZABLE IN CERTAIN LAYOUTS*/
+
+.absoluteLayout.searchbar, .wrapLayout.searchbar{
+    display: none;
 }

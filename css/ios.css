@@ -4,15 +4,26 @@
     /*width: 1334px;
     height: 750px;*/
     width: 375px;
-    height: 667px;
+    height: 656px;            /*Exclude top bar of 11px*/
+}
+
+.ios.window span{
+    position: absolute;
+    top: -30px;
 }
 
 .ios.header{
+    position: absolute;
+    top: -12px;
     background-image: url("../img/components/ios/statusbar.png");
     background-size: cover;
     height: 11px;
     width: 100%;
-    border: none;  
+    border-style: solid;
+    border-width: 1px;
+    border-bottom: none;
+    left: -1px;
+    background-color: white;
 }
 
 .ios.label{
