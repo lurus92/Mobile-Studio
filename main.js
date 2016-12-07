@@ -1,10 +1,12 @@
 const electron = require('electron');
+const os = require('os');
 const {app} = electron;
 const {BrowserWindow} = electron;
 let startWindow;
 let editorWindow;
 
 function createStartWindow() {
+  if (os.platform()=="darwin"){
   startWindow = new BrowserWindow({
       width: 800,
       height: 600,
@@ -13,6 +15,15 @@ function createStartWindow() {
       titleBarStyle: 'hidden'
 
   });
+}else{
+   startWindow = new BrowserWindow({
+      width: 800,
+      height: 600,
+      resizable: false,
+      icon: `file://${__dirname}/img/startupIcon.png`,
+      frame: false
+  });  
+}
   startWindow.loadURL(`file://${__dirname}/index.html`);   
     
 
@@ -31,7 +42,7 @@ function checkIfNativeScriptIsIntalled(){
 }
 */
 function createEditorWindow(path, prjName, existingPrj){
-  startWindow.close();
+ // startWindow.close();
   editorWindow = new BrowserWindow({
       width: 1024,
       height: 768

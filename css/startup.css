@@ -4,6 +4,11 @@ html{
     -webkit-user-select: none;
 }
 
+::-webkit-scrollbar { 
+    display: none; 
+}
+
+
 body{
     background: radial-gradient(circle, #848484, #4C4C4C);;
     background-repeat: no-repeat;
@@ -74,7 +79,7 @@ strong{
     box-shadow: inset 1px 1px 10px #000;
     right: -420px;
     top: 100px;
-    
+    -webkit-app-region: no-drag;
     animation-name: animDrawer;
     animation-duration: 1.5s;
     animation-delay: 1s;

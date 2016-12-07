@@ -481,7 +481,7 @@
                                         console.log("Dropping element!");
                                         var id = "";
                                         var componentHTML = "";
-                                        var type = ui.draggable[0].innerText;
+                                        var type = $(ui.draggable[0]).find(".component-title").text();
                                         //TODO: Create better ID
                                         componentsCounter++;
                                         id = type+componentsCounter;

@@ -2,6 +2,7 @@
 
 var fs = require('fs');
 var path = require('path');
+var os = require('os');
 
 var workingPath;
 var projectName;
@@ -27,7 +28,11 @@ function buildNewProject(config){
         childProcess = require('child_process'),
         fixPath = require('fix-path');
     fixPath();      //Required to reset path and execute commands
-    var cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';        //TODO: CHECK FOR WIN
+    
+    //Multiplatform things
+    var cmdBuildPrj = "";
+    if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
+    else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';        //TODO: CHECK FOR WIN
 
     /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT****/
     childProcess.execSync(cmdBuildPrj, {cwd: workingPath}, function(error, stdout, stderr) {
@@ -38,13 +43,15 @@ function buildNewProject(config){
 
     
     /****ADDING IOS THING********/
-    var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
     
-    childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName}, function(error, stdout, stderr) {
-        //Callback function to execute when command is executed
-        console.log("cmd: " + error + " : "  + stdout);
-    });
-    
+    if(os.platform()=="darwin"){   //This things work only on a Mac
+        var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
+
+        childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName}, function(error, stdout, stderr) {
+            //Callback function to execute when command is executed
+            console.log("cmd: " + error + " : "  + stdout);
+        });
+    }
 
     //ELIMINATION OF DEFAULT TEMPLATES. WATCH OUT WHAT YOU DELETE!
     /*Build directory structure
