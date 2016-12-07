@@ -41,11 +41,13 @@
             componentsCounter = 0;      //To insert in initialization
             scaleFactor = 1;
             
+            var dirty = false;
             //SupportedCSS: CSS tags that can be translated by NS
             var supportedCSS = ['color','background-color','background-image','background-repeat','background-position','background-size','border-color','border-width','border-radius','font','font-family','font-size','font-style','font-weight','text-align','text-decoration','text-transform','letter-spacing','z-index','clip-path','vertical-align','horizontal-align','margin','margin-top','margin-right','margin-bottom','margin-left','width','height','min-width','min-height','padding','padding-top','padding-right','padding-bottom','padding-left','visibility','opacity'];
             
             //var messageReceived = null;
             window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');
+            //window.$ = window.jQuery = require('./js/zepto.js');
             require('./js/jquery-ui.js');
             require('./js/jquery.ui.ruler.js');
             require('./js/colResizable-1.6.min.js');
@@ -133,6 +135,7 @@
         
             
             function deleteElement(idToDelete,winId){
+                    dirty = true;
                     $("#"+idToDelete).remove();
                     $(".infoHovering").remove();
                     $("#propertyPanel").hide();
@@ -155,11 +158,13 @@
             }
             
             function setNewCss(event, attributeID, property){                   //Incremental CSS UPDATE 
+                dirty = true;
                 $("#"+attributeID+"").css(""+property+"",""+this.value+"");
                 //console.log(this);
             }
             
             function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //compWin = not defined if Window, id if comp
+                dirty = true;
                 var newId = this.value;
                 switch(attrType){
                     case "id":{
@@ -376,6 +381,7 @@
                 $("#selector").css("height",elementToWrap.target.style.height);
             }
             
+            //TODO: remove following function
             function createPopover(title, description){
                 $("#popover").remove();
                 $("body").prepend(`
@@ -385,6 +391,7 @@
                     </div>`);
             }
             
+            //TODO: check if the following funtion is useful
             function normalizePosition(oldPosition){
                 //Position should take care of the current zoom level of canvas
                 return oldPosition*parseFloat($("#mainContent").css("zoom"));
@@ -406,7 +413,7 @@
             }
             
             function initializeWindowEvents(){
-                
+                dirty = false;
                 
                 /*FIX FOR JQUERY UI ZOOM BUG
                 
@@ -476,6 +483,7 @@
                                       //2) an already present component get moved
                                       
                                       //1) the ui.draggable[0] has "component" class
+                                      dirty = true;
                                       x = ui.draggable[0];
                                       if ($.inArray("component", ui.draggable[0].classList)>=0){
                                         console.log("Dropping element!");
@@ -609,6 +617,9 @@
                                   }
                       });
                 
+                $(window).on("beforeunload", function() { 
+                   if(dirty) alert("There are some not saved changes. Do you wish to continue?");
+                });
                 
                 /*$(".drawn-element").click(function(){
                   $(".drawn-element").removeClass('selected-element');
@@ -708,6 +719,7 @@
             }
             
             function deleteAction(event, compId, winId,action){
+                dirty = true;
                 application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = null;
                 this.text = "";
             }
@@ -720,6 +732,7 @@
                 console.log(winId);
                 
                 var findElementAtClickListener = function(event){
+                    dirty = true; //Not really true, true if we find something to bind
                     $("#svg-container").remove();
                     console.log(event);
                     //bindAction(document.elementFromPoint(event.clientX,event.clientY),compId,winId);
