@@ -153,7 +153,7 @@
             
             
             function buildProjectForAndroid(){
-                $("#loadingPanel").show();
+                $("#loading-panel").show();
                 console.log("DO TRANSLATION HERE!")
             }
             
@@ -647,7 +647,7 @@
                 existingPrj = config[3];
                 if (!existingPrj) buildNewProject(config);  
                 else restoreProjectFromFile();       //Check Indexes
-                //$("#loadingPanel").hide();
+                //$("#loading-panel").hide();
                 createFileExplorer();
 
                 /*$('#fileExplorer').fileTree({ root: config[2]+"/"+config[1] }, function(file) {
@@ -848,9 +848,17 @@
            <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
            <button id="iOSGo" onclick="$('#consoleContainer').toggle();">Show/Hide console</button>
        </nav>
-       <section id="loadingPanel">
-           <h1 style="color:white;">LOADING</h1>
-       </section>
+       <section id="loading-panel">
+           <div id="loading-darken"></div>
+           <div id="loading-popup">
+               <span>Loading</span>
+               <br>
+               <div id="loading-progress"></div>
+               <div id="loading-progress-overlay"></div>
+               <br>
+               <small style="font-size: 12px;">Writing project files, please wait</small>
+           </div>
+      </section>
        <section id="consoleContainer" style="display:none;">Console
            <div id="console">Console Started</div>
        </section>

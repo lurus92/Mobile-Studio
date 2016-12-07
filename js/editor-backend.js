@@ -33,38 +33,44 @@ function buildNewProject(config){
     var cmdBuildPrj = "";
     if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
     else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';        //TODO: CHECK FOR WIN
-
-    /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT****/
-    childProcess.execSync(cmdBuildPrj, {cwd: workingPath}, function(error, stdout, stderr) {
+    
+    process.stdout.on('data', function(data) {
+        console.log(data); });
+    process.stdin.on('data', function(data) {
+        console.log(data); });
+    
+    /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT***/
+    childProcess.execSync(cmdBuildPrj, {cwd: workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
-        //$("#loadingPanel").hide();
+        //$("#loading-panel").hide();
     });
 
     
-    /****ADDING IOS THING********/
+    /****ADDING IOS THING*******/
     
     if(os.platform()=="darwin"){   //This things work only on a Mac
         var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
 
-        childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName}, function(error, stdout, stderr) {
+        childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName, stdio:[0,1,2]}, function(error, stdout, stderr) {
             //Callback function to execute when command is executed
             console.log("cmd: " + error + " : "  + stdout);
         });
     }
-
+    
+    
     //ELIMINATION OF DEFAULT TEMPLATES. WATCH OUT WHAT YOU DELETE!
     /*Build directory structure
     childProcess.execSync("rm -r app && mkdir app",{cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
-        //$("#loadingPanel").hide();
+        //$("#loading-panel").hide();
     });*/
 
     buildManifest();
    // saveProjectToMainScreen();
     
-    $("#loadingPanel").hide();
+    $("#loading-panel").hide();
     
     //OLD FILE VISUALIZATION
     /*
@@ -141,7 +147,7 @@ function run(mode){
     var cp = childProcess.exec(cmdRunPrj, {cwd: workingPath+"/"+projectName}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
-        //$("#loadingPanel").hide();
+        //$("#loading-panel").hide();
     });
     cp.stdout.on('data', function(data) {
         console.log(data); 
@@ -331,7 +337,7 @@ function restoreFromString(msaString){        //msaString is the string inside t
 
 
         }
-    $("#loadingPanel").hide();
+    $("#loading-panel").hide();
 }
 
 

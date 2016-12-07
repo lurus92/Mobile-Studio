@@ -251,23 +251,44 @@ td {
     border-radius: 5px;
 }
 
-#loadingPanel{
-    position:absolute; 
-    width:100%;
-    height:100%; 
+#loading-panel{
+text-align: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
     top: 0;
-    left:0;
-    background:black;
-    opacity:0.9;
-    z-index:20;
+    left: 0;
+    z-index: 20;
 }
 
-#loadingPanel h1{
+#loading-darken{
+    background-color: black;
+    opacity: 0.5;
+    width: 100%;
+    height: 100%;
+}
+
+#loading-popup{
+    position: absolute;
+    top: 40%;
+    left: 35%;
+    margin: 0 auto;
+    font-size: 30px;
+    background-color: #2f2f2f;
     color: white;
-    text-align: center;
-    position: relative;
-    top: 200px;
-    font-size: 80px;
+    text-align: left;
+    padding: 20;
+    border-radius: 10px;
+}
+
+#loading-progress{
+    margin: 10 0 10 0;
+    height: 15px;
+    background: blue;
+    width: 100%;
+    overflow: hidden;
+    background: url('../img/loading.gif') repeat-x;
+    opacity: 0.25;
 }
 
 #consoleContainer{
