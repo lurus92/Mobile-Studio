@@ -5,7 +5,6 @@
     <title>Mobile Studio v0.0.1</title>
     <link rel="stylesheet" href="css/startup.css">
     <script>window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');</script>
-    <script>window.FSM = require('./js/FileSystemManager.js');</script>
 
     <script>
         var workingPath = null;
@@ -27,6 +26,10 @@
                 event.preventDefault();
                 openEditorAndClose();  
             });
+            $("#cancelButton").on("click",function(event){
+                event.preventDefault();
+                goToFirstScreen();
+            });
             $("#btnDir").on("click",function(event){
                 event.preventDefault();
                 selectDir();
@@ -36,6 +39,11 @@
             retriveProjects();
             
         });
+        
+        function goToFirstScreen(){
+            $("#firstScreen").removeClass("animate");
+            $("#secondScreen").removeClass("animate");
+        }
         
         function retriveProjects(){
             const {app} = require('electron').remote;
@@ -153,9 +161,26 @@
          
               Build for
               <br/>
+              <div id="androidSelector" class="textInput" style="
+                    height: 250px;
+                    width: 230px;
+                    /* background-color: black; */
+                    display: inline-block;
+                    /* margin: 0 auto; */
+                    margin-left: 20px;
+                "></div>
+              <div id="iOSselector" class="textInput" style="
+                height: 250px;
+                width: 230px;
+                /* background-color: blue; */
+                display: inline-block;
+                float: right;
+                margin-right: 20px;
+            "></div>
               <input type="checkbox">Android<br>
               <input type="checkbox">iOS<br>
               <br><br>
+              <button id="cancelButton">Cancel</button>
               <button id="startEditorBtn">Start Editor</button>
           </form>
       </section>
