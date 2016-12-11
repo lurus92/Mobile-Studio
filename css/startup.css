@@ -4,6 +4,11 @@ html{
     -webkit-user-select: none;
 }
 
+
+html,button,input,#androidSelector,iOSselector{
+    -webkit-user-select: none;
+}
+
 button:focus {
     outline:0;
 }

@@ -2,7 +2,7 @@
     display: none; 
 }
 
-html{
+html,button{
     -webkit-user-select: none;
 }
 
