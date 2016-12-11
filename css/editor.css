@@ -2,9 +2,6 @@
     display: none; 
 }
 
-html,button{
-    -webkit-user-select: none;
-}
 
 button:focus {
     outline:0;

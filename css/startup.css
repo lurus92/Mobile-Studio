@@ -5,8 +5,8 @@ html{
 }
 
 
-html,button,input,#androidSelector,iOSselector{
-    -webkit-user-select: none;
+button,input,#androidSelector,iOSselector{
+    -webkit-app-region: no-drag;
 }
 
 button:focus {
