@@ -4,6 +4,10 @@ html{
     -webkit-user-select: none;
 }
 
+button:focus {
+    outline:0;
+}
+
 ::-webkit-scrollbar { 
     display: none; 
 }
@@ -108,6 +112,10 @@ strong{
     text-align: left;
     position: absolute;
     top: -40px;
+    font-size: 13px;
+    vertical-align: bottom;
+    /* position: relative; */
+    line-height: 30px;
 }
 
 @keyframes hideFirstScreen {
@@ -207,5 +215,94 @@ form{
 #listContainer{
     height: 100%;
     overflow: scroll;
+}
+
+#betaLabel{
+    background-color: orange;
+    position: absolute;
+    width: 100%;
+    bottom: 20px;
+    left: -370px;
+    padding: 5px;
+    transform: rotate(45deg);
+}
+
+#androidSelector, #iOSselector{
+    height: 250px;
+    width: 230px;
+    background-color: #4A4A4A;
+    border-radius: 5px;
+    border-width: 0;
+    /* background-color: black; */
+    display: inline-block;
+    /* margin: 0 auto; */
+    padding: 15px;
+    margin-bottom: 15px;
+    box-shadow: inset 1px 1px 10px #000;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 150px;
+    text-align: center;
+    font-size: 30px;                 
+}
+
+#androidSelector{
+    background-image: url('../img/androidPhone.png');
+    float: left;
+    margin-left: 10px;
+}
+
+#iOSselector{
+    background-image: url('../img/iPhone.png');
+    float: right;
+    margin-right: 10px;
+
+}
+
+#betaLabel div{
+    border-style: dashed;
+    border-width: 1px;
+    padding: 2px;
+}
+
+#cancelButton{
+    width: 25%;
+    text-align: center;
+    right: 25%;
+    position: absolute;
+    bottom: 0;
+    color: white;
+    background-color: darkred;
+    border-width: 0;
+    border-top-left-radius: 10px;
+    /* border-bottom-right-radius: 10px; */
+    height: 40px;
+    text-align: right;
+    font-size: 18px;
+    padding-right: 20px;
+    box-shadow: inset 1px 1px 3px #000000;
+}
+#startEditorBtn{
+    width: 25%;
+    right: 0;
+    position: absolute;
+    bottom: 0;
+    color: white;
+    background-color: #7ED321;
+    border-width: 0;
+    /* border-bottom-left-radius: 10px; */
+    /* border-bottom-right-radius: 10px; */
+    height: 40px;
+    text-align: right;
+    font-size: 18px;
+    padding-right: 20px;
+    box-shadow: inset 0px 1px 3px #000;
+}
+
+#infoBox span{
+    position: absolute;
+    bottom: 63px;
+    left: 10%;
+    width: 80%;
 }
 

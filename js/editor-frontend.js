@@ -45,7 +45,6 @@ $(window).ready(function() {
     });
 
 
-
     $("#mainContent").css("zoom",1);
 
     //IMPROVE ZOOM

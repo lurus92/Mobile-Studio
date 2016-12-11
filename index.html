@@ -9,6 +9,10 @@
     <script>
         var workingPath = null;
         var projectName = null;
+        var buildForAndroid = false;
+        var buildForIOS = false;
+        var os = require('os');
+
         
         $(window).ready(function(){    
                         
@@ -38,11 +42,35 @@
             
             retriveProjects();
             
+            $("#androidSelector").click(function(){
+                if (!buildForAndroid) $(this).css("background-color","#7ED321");
+                else  $(this).css("background-color","");
+                buildForAndroid = !buildForAndroid;
+            });
+            
+            $("#iOSselector").click(function(){
+                if (!buildForIOS){
+                   $(this).css("background-color","#7ED321");
+                   checkPlatform();
+                } 
+                else{
+                    $(this).css("background-color","");
+                    $("#infoBox").html("");
+                };
+                buildForIOS = !buildForIOS;
+            });
+            
         });
         
         function goToFirstScreen(){
             $("#firstScreen").removeClass("animate");
             $("#secondScreen").removeClass("animate");
+        }
+        
+        function checkPlatform(){
+            if(os.platform()=="win32") 
+                $("#infoBox").html("<span>Warning: to run a project for iOS you will need a Mac with Xcode. It seems that you have a Windows machine: you can still build a project for iOS, but you won't be able to run it</span>")
+
         }
         
         function retriveProjects(){
@@ -130,24 +158,20 @@
     </script>
   </head>
   <body>
+      <div id="betaLabel">
+          <div>
+              BETA
+          </div>
+      </div>
       <section id="firstScreen">
           <h2>Welcome</h2>
           <img src="img/mainIcon.png"/>
-
-
           <h1><strong>Mobile</strong> Studio</h1>
           <h4>The first cross-platform IDE for cross-platform mobile apps</h4>
           <br>
           <section id="projectsDrawer">
-               <h1 style="
-                    right: 0;
-                    font-size: 13px;
-                    vertical-align: bottom;
-                    /* position: relative; */
-                    line-height: 30px;
-                    /* color: #FF5722; */
-                " onclick="deleteHistory();">Delete History</h1>
-                <h1>Your Projects</h1>
+               <h1 onclick="deleteHistory();" style="right:0;">Delete History</h1>
+                <h1 style="left:0;">Your Projects</h1>
                 <section id="listContainer"></section>
                 <button id="createNewProject">Create a new app</button>
           </section>
@@ -160,29 +184,15 @@
               <br>
          
               Build for
-              <br/>
-              <div id="androidSelector" class="textInput" style="
-                    height: 250px;
-                    width: 230px;
-                    /* background-color: black; */
-                    display: inline-block;
-                    /* margin: 0 auto; */
-                    margin-left: 20px;
-                "></div>
-              <div id="iOSselector" class="textInput" style="
-                height: 250px;
-                width: 230px;
-                /* background-color: blue; */
-                display: inline-block;
-                float: right;
-                margin-right: 20px;
-            "></div>
-              <input type="checkbox">Android<br>
-              <input type="checkbox">iOS<br>
+              <br>
+              <br>
+              <div id="androidSelector">Android</div>
+              <div id="iOSselector" >iOS</div>
               <br><br>
               <button id="cancelButton">Cancel</button>
               <button id="startEditorBtn">Start Editor</button>
           </form>
+          <div id="infoBox"></div>
       </section>
   </body>
 </html>

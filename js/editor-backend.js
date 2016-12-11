@@ -69,7 +69,7 @@ function buildNewProject(config){
 
     buildManifest();
    // saveProjectToMainScreen();
-    
+    dirty = true;
     $("#loading-panel").hide();
     
     //OLD FILE VISUALIZATION
@@ -224,6 +224,7 @@ function storeModel(){
     if(!existingPrj) saveProjectToMainScreen();     //ELSE, we could think to put at top, save timestamp, etc.
     
     alert("Project Saved");
+    dirty = false;
 }
 
 function restoreProjectFromFile(){
