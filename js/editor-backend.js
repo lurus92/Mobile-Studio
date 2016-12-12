@@ -69,6 +69,7 @@ function buildNewProject(config){
 
     buildManifest();
    // saveProjectToMainScreen();
+    createComponentsExplorer();
     dirty = true;
     $("#loading-panel").hide();
     
@@ -124,6 +125,7 @@ function buildNewProject(config){
             console.log("CSS of screen: "+application.screens[i].id+" written");
          });       
      }
+     updateFileExplorer();
 }
 
 function run(mode){
@@ -222,7 +224,7 @@ function storeModel(){
     }); 
     
     if(!existingPrj) saveProjectToMainScreen();     //ELSE, we could think to put at top, save timestamp, etc.
-    
+    updateFileExplorer();
     alert("Project Saved");
     dirty = false;
 }
@@ -346,6 +348,7 @@ function openFileInCodeEditor(fileName){
     if(!fileName) console.log("error");
     var splitted = fileName.split(".");
     var ext = splitted[splitted.length-1];
+    if  ((!ext)||(ext=="")) return; //case of a directory
     switch (ext){
         case "msa": restoreProjectFromFile();
             break;
@@ -432,19 +435,26 @@ function createFileExplorer(){
     populateFileExplorer(content);
 }
 
+function updateFileExplorer(){
+    var tree = $('#fileExplorer').fancytree('getTree');
+    var content = dirTree(workingPath+"/"+projectName);
+    tree.reload(content);
+}
+
+
 function updateModelExplorer(){
     var tree = $('#modelExplorer').fancytree('getTree');
     content = adaptModelForTree();
-    var newSourceOption = {
-        source: content,
-        activate: function(event, data){
-            node = data.node;
-            selectElement($("#"+node.title)[0], $("#"+node.data.parentWindow)[0]);
-        }
-    }
-    tree.reload(newSourceOption);
+    tree.reload(content);
 }
 
+function selectInModelExplorer(id){
+    var tree = $('#modelExplorer').fancytree('getTree');
+    tree.visit(function(node){
+        if(node.title==id);
+            node.setFocus(true);
+  });
+}
 
 
 function createComponentsExplorer(){

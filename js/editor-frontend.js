@@ -108,6 +108,7 @@ function deleteElement(idToDelete,winId){
             delete application.screens[winId].components[idToDelete];
             application.screens[winId].numberOfComponents--;
         }
+        //updateModelExplorer();
     }
 
 
@@ -357,7 +358,7 @@ function normalizePosition(oldPosition){
 }
 
 function selectElement(element,window){
-    //console.log("parameters received: "+element+" "+window);
+    console.log("parameters received: "+element.id+" "+window.id);
     if (element.id.substring(0,3)=="win"){
               buildPropertiesPanel(""+element.id+"",null);
               //setSelectionBox(sender)
@@ -366,6 +367,7 @@ function selectElement(element,window){
               buildPropertiesPanel(""+window.id+"",""+element.id+"");
               $("#propertyPanel").show(); 
           }
+    selectInModelExplorer(element.id); //BIG PROBLEMS HERE
     $(".drawn-element").removeClass('selected-element');
     if(!$(element).hasClass("header"))
         $(element).addClass('selected-element');
@@ -531,7 +533,7 @@ function initializeWindowEvents(){
                           //createComponentsExplorer();
                           //$("#modelExplorer").append("<span class='secondLevelModel'>"+id+" - "+type+" </span>");
                           $("#"+id).draggable({ containment: "parent", cancel:false });
-
+                          updateModelExplorer();
                       }else{
                             //Behaviour here to move objects (STACK LAYOUT)
                           switch(layout){
@@ -667,6 +669,7 @@ function initialization(config){        //config[1]: working path [it is in 0 po
                   //createComponentsExplorer();
                  // $("#modelExplorer").append("<span class='firstLevelModel'>win"+newId+" - Window </span>");
                   initializeWindowEvents();
+                  updateModelExplorer();
 
           //ui.draggable.clone().appendTo($(this)).draggable();
 

@@ -5,7 +5,7 @@ html{
 }
 
 
-button,input,#androidSelector,iOSselector{
+button, input, #androidSelector, #iOSselector{
     -webkit-app-region: no-drag;
 }
 
