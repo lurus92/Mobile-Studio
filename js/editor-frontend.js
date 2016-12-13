@@ -579,7 +579,9 @@ function initializeWindowEvents(){
           });
 
     $(window).on("beforeunload", function() { 
-       if(dirty) alert("There are some not saved changes. Do you wish to continue?");
+       if(dirty)
+           if(!confirm("There are some not saved changes. Do you want to exit anyway?"))
+               return false;
     });
 
     /*$(".drawn-element").click(function(){
@@ -615,7 +617,7 @@ function initialization(config){        //config[1]: working path [it is in 0 po
         alert(file);
     });*/
 
-    document.title += " - "+config[1];
+    document.title += " - "+projectName;
 
 
 

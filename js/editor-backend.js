@@ -7,6 +7,8 @@ var os = require('os');
 var workingPath;
 var projectName;
 
+
+
 function saveSettings (settings) {
     var file = 'my-settings-file.json';
     var filePath = path.join(nw.App.dataPath, file);
@@ -348,7 +350,25 @@ function openFileInCodeEditor(fileName){
     if(!fileName) console.log("error");
     var splitted = fileName.split(".");
     var ext = splitted[splitted.length-1];
-    if  ((!ext)||(ext=="")) return; //case of a directory
+    if(ext=="msa") restoreProjectFromFile();
+    else{
+        fs.readFile(fileName, 'utf8', function (err,data) {
+                $("#propertyPanel").hide();
+                codeEditor.setValue(String(data));
+            });
+            $("#componentsContainer").hide();
+        switch(ext){
+            case "json": codeEditor.setOption("mode","javascript");
+            break;
+            case "css": codeEditor.setOption("mode","css");
+            break;
+            case "js": codeEditor.setOption("mode","javascript");
+            break;
+            case "xml": codeEditor.setOption("mode","xml");
+            break;
+            default: console.log("Cannot color text");
+        }
+    }/*
     switch (ext){
         case "msa": restoreProjectFromFile();
             break;
@@ -361,7 +381,7 @@ function openFileInCodeEditor(fileName){
             $("#componentsContainer").hide();
 
         }
-    }                        
+    } */                       
 }
 
 
@@ -391,21 +411,18 @@ function dirTree(filename) {
 }
 
 function populateFileExplorer(info){
-   $("#fileExplorer").fancytree({
+  // if(!$("#fileExplorer").fancytree('getTree'))
+    $("#fileExplorer").fancytree({
        source: info,
        activate: function(event, data){
           // A node was activated: display its title:
-          createCodeEditor();
           node = data.node;
+          if(data.node.isFolder()) return false;    //We are not opening folders
+          //Consider Extension 
+          createCodeEditor();
           openFileInCodeEditor(node.data.path);
-        },
-            beforeSelect: function(event, data){
-              // A node is about to be selected: prevent this, for folder-nodes:
-              if( data.node.isFolder() ){
-                return false;
-              }
-    }
-                                });
+        }
+    });
 }
 
 function adaptModelForTree(){
@@ -437,6 +454,7 @@ function createFileExplorer(){
 
 function updateFileExplorer(){
     var tree = $('#fileExplorer').fancytree('getTree');
+    //if (!tree) return;
     var content = dirTree(workingPath+"/"+projectName);
     tree.reload(content);
 }
@@ -444,12 +462,14 @@ function updateFileExplorer(){
 
 function updateModelExplorer(){
     var tree = $('#modelExplorer').fancytree('getTree');
+    //if(!tree) return;
     content = adaptModelForTree();
     tree.reload(content);
 }
 
 function selectInModelExplorer(id){
     var tree = $('#modelExplorer').fancytree('getTree');
+    //if (!tree) return;
     tree.visit(function(node){
         if(node.title==id);
             node.setFocus(true);
@@ -458,15 +478,22 @@ function selectInModelExplorer(id){
 
 
 function createComponentsExplorer(){
-    $("#modelExplorer").html("");
     content = adaptModelForTree();
-    $("#modelExplorer").fancytree({
-        source: content,
-        activate: function(event, data){
-            node = data.node;
-            selectElement($("#"+node.title)[0], $("#"+node.data.parentWindow)[0]);
-        }
-    });
+    var tree;
+    try{
+        tree = $("#modelExplorer").fancytree('getTree');
+        tree.reload(content); 
+    }catch(e){
+        
+     //if(!$("#modelExplorer").fancytree('getTree'))
+        $("#modelExplorer").fancytree({
+            source: content,
+            activate: function(event, data){
+                node = data.node;
+                selectElement($("#"+node.title)[0], $("#"+node.data.parentWindow)[0]);
+            }
+        });
+    }
 }
 
 /*function bindAction(targetElement, senderComponent, senderWindow){
