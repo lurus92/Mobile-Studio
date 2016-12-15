@@ -7,6 +7,8 @@ var os = require('os');
 var workingPath;
 var projectName;
 
+var codeEditor; //Contains the code editor if visible or NULL
+
 
 
 function saveSettings (settings) {
@@ -234,6 +236,7 @@ function storeModel(){
 function restoreProjectFromFile(){
       var path = workingPath;
       var prjName = projectName;          //REMOVE THIS: THEY ARE GLOBAL
+      codeEditor = null;
       fs.readFile(path+"/"+prjName+"/"+prjName+".msa", 'utf8', function (err,data) {
       if (err) {
           alert("File Not Found");
@@ -241,6 +244,7 @@ function restoreProjectFromFile(){
         return console.log(err);
       }
       $("#componentsContainer").show();
+      $("#fileExplorer").css("height","20%");    //Add animation, please
       restoreFromString(data);
     });   
 
@@ -346,17 +350,120 @@ function restoreFromString(msaString){        //msaString is the string inside t
 }
 
 
+
+function restoreFromSubModel(sm){        //msaString is the string inside the file
+    globalApplication = application;
+    application = sm;
+    
+    //From here it's the same as restoreFromString();
+    createComponentsExplorer();
+    //clean the canvas
+    $("#mainContent").html("");
+    $("#mainContent").ruler();
+    //Wea should rebuild the apps
+    for (var i in application.screens){
+        var newWindow = `<div id='`+i+`' class='window drawn-element `+platformToPreview+`'>
+                            <span>`+i+`</span>  <!--INSERT FIRST WINDOW TEXT -->
+                         </div>`;
+        $("#mainContent").append(newWindow);
+        $("#"+i).attr("style",application.screens[i].style);
+        initializeWindowEvents();
+        for (var j in application.screens[i].components){
+            var componentHTML = "";
+            var id = application.screens[i].components[j].id;
+            switch (application.screens[i].components[j].type){
+                case "Label":
+                    componentHTML = "<div id='"+id+"' class='drawn-element label'>"+application.screens[i].components[j].specificAttributes['text']+"</div>";
+                    break;
+                case "Button":
+                      componentHTML = "<button id='"+id+"' class='drawn-element button' value='"+application.screens[i].components[j].specificAttributes['text']+"'>"+application.screens[i].components[j].specificAttributes['text']+"</button>";
+                      break;
+                  case "TextField":
+                      componentHTML = "<input type='text' id='"+id+"' class='drawn-element textfield' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
+                      break;
+                  case "TextView": componentHTML="<input type='textarea' id='"+id+"' class='drawn-element textarea' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
+                      break;
+                  case "SearchBar":
+                      componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
+                      break;
+                  case "Switch":{
+                      var checked = "";
+                      if (application.screens[i].components[j].specificAttributes['set']) checked='checked="checked"'
+                      componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch' "+checked+"/>";
+                      }
+                      break;
+                  case "Slider":
+                      componentHTML = "<div id='"+id+"' class='drawn-element slider value='"+application.screens[i].components[j].specificAttributes['value']+"></div>";
+                      break;
+                  case "Progress":
+                      componentHTML = "<progress id='"+id+"' class='drawn-element progress' value='"+application.screens[i].components[j].specificAttributes['value']+"/>";
+                      break;
+                  case "Image":
+                      componentHTML = "<img id='"+id+"' class='drawn-element image' />";
+                      break;
+                  case "ListView":
+                      componentHTML = "<div id='"+id+"' class='drawn-element listview'/>";
+                      break;
+                  case "HtmlView":
+                      componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview'></iframe>";
+                      break;
+                  case "WebView":
+                      componentHTML = "<iframe id='"+id+"' class='drawn-element htmlview'></iframe>";
+                      break;
+                  case "TabView":
+                      componentHTML = "<div id='"+id+"' class='drawn-element tabview'></div>";
+                      break;
+                  case "SegmentedBar":
+                      componentHTML = "<div id='"+id+"' class='drawn-element segmentedBar'></div>";
+                      break;
+                  case "DatePicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element datepicker'></div>";
+                      break;
+                  case "TimePicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element timepicker'></div>";
+                      break;
+                  case "ListPicker":
+                      componentHTML = "<div id='"+id+"' class='drawn-element listpicker'></div>";
+                      break;
+                  case "ActivityIndicator":
+                      componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator'></div>";
+                      break;
+                  default: 
+                      console.log("Warning: element with id: "+id+" could not be restored!");
+                }
+                $("#"+i).append(componentHTML);
+                $("#"+j).attr("style",application.screens[i].components[j].style);
+                $("#"+j).addClass(application.screens[i].layout);
+                $("#"+j).addClass(platformToPreview);   //works?
+                $("#"+j).draggable({ containment: "parent", cancel: false});
+
+            }
+            $("#"+i).prepend(`<div class="header drawn-element `+platformToPreview+`"></div>
+                                                  </div>`);
+        
+            $("#"+i).find(".drawn-element").css("position","");
+
+
+        }
+    $("#loading-panel").hide();
+}
+
+
+
 function openFileInCodeEditor(fileName){
     if(!fileName) console.log("error");
     var splitted = fileName.split(".");
     var ext = splitted[splitted.length-1];
-    if(ext=="msa") restoreProjectFromFile();
+    if((ext=="msa")&&(visualEditor)) restoreProjectFromFile();
     else{
         fs.readFile(fileName, 'utf8', function (err,data) {
                 $("#propertyPanel").hide();
                 codeEditor.setValue(String(data));
+                codeEditor.editingFilePath = fileName;
             });
+            //Front end small customizations
             $("#componentsContainer").hide();
+            $("#fileExplorer").css("height","100%");    //Add animation, please
         switch(ext){
             case "json": codeEditor.setOption("mode","javascript");
             break;
@@ -496,6 +603,21 @@ function createComponentsExplorer(){
     }
 }
 
-/*function bindAction(targetElement, senderComponent, senderWindow){
-    
-}*/
+function saveProject(){
+    if (!codeEditor){
+        //Code editor not displayed, save screen to msa
+        storeModel();
+        compileForNS();
+    }else{
+        //Code editor displayed: you should save the content of the editor!
+        fs.writeFile(codeEditor.editingFilePath, codeEditor.getValue(), function (err) {
+        if (err) {
+            console.info("There was an error attempting to save your data.");
+            console.warn(err.message);
+            return;
+        }
+    });
+    }
+}
+
+//TODO: each time you modify something in the editor, you should REPARSE everything before going to UI EDITOR!!!!

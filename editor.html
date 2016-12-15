@@ -12,7 +12,7 @@
         <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
         <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
         <!--script src="js/bootstrap/bootstrap.min.js"></script-->
-        
+        <script src="classes.js"></script>
         <script src="js/translator.js"></script>
         <script src="js/editor-backend.js"></script> 
         <script src="js/editor-frontend.js"></script> 
@@ -54,11 +54,12 @@
                 </select>
 
            </span>
-           <button id="saveButton" onclick="storeModel();">Save Project</button>
-           <button id="compileButton" onclick="compileForNS();">Compile Project</button>
+           <button id="saveButton" onclick="saveProject();">Save Project</button>
+           <!--button id="compileButton" onclick="compileForNS();">Generate NS files</button-->
            <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>
            <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
            <button id="iOSGo" onclick="$('#consoleContainer').toggle();">Show/Hide console</button>
+           <button id="codeToggle();" onclick="codeToggle();">Visual/Code</button>
        </nav>
        <section id="loading-panel">
            <div id="loading-darken"></div>

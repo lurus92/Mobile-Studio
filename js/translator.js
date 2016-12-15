@@ -202,7 +202,44 @@ function translateActions(screen){
                         }`
 
                 }
-           
-        
         return js;
+}
+
+
+function convertXMLtoModel(xml){
+    var submodel = {};
+    var obj = $.parseXML(xml);
+    var currentPage = obj.childNodes[0];
+    if (currentPage.tagName != "Page") return null;     //First tag always "Page"
+    submodel["numberOfScreens"] = 1;
+    var pageId = currentPage.attributes["id"].value;
+    submodel["startingPage"] = pageId;
+    submodel.screens = {}
+    submodel.screens[pageId] = {}
+    submodel.screens[pageId].id = pageId;
+    submodel.screens[pageId].isStartingWindow = true;
+    switch ($(currentPage).children()[0].tagName){
+        case "StackLayout": submodel.screens[pageId].layout = "stackLayout";
+            break;
+        case "WrapLayout": submodel.screens[pageId].layout = "wrapLayout";
+            break;
+        case "AbsoluteLayout": submodel.screens[pageId].layout = "absoluteLayout";
+            break;
+        default: return null;
+    }
+    submodel.screens[pageId].style = "left: 70px;top: 50px;";
+    submodel.screens[pageId].type = "Window";
+    submodel.screens[pageId].components = {};
+    var componentsArray = $($(currentPage).children()).children();
+    for (var i = 0; i < componentsArray.length; i++){
+        var componentId = componentsArray[i].attributes["id"].value;
+        submodel.screens[pageId].components[componentId] = new Component(componentId, componentsArray[i].tagName);
+        /*submodel.screens[pageId].components[componentId] = {};
+        submodel.screens[pageId].components[componentId].id= componentId;
+        submodel.screens[pageId].components[componentId].isDynamic = false;
+        submodel.screens[pageId].components[componentId].specificAttributes = null;
+        submodel.screens[pageId].components[componentId].supportedActions = null;
+        submodel.screens[pageId].components[componentId].type = componentsArray[i].tagName;   */
+    }
+    return submodel;
 }

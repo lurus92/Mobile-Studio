@@ -17,6 +17,8 @@ require('./js/fancytree/jquery.fancytree-all.min.js');
 var model = require('./classes.js');
 let application = new model.Application(); 
 platformToPreview = "ios";
+visualEditor = true;
+
 $(window).ready(function() {
 
     //Graphic Initialization
@@ -794,3 +796,19 @@ function createCodeEditor(){
     $(".CodeMirror-scroll").css("height",parseInt($("#mainContent").css("height"))-34);
     //TODO: CHANGE SIZE ON RESIZE
 }   
+
+
+function codeToggle(){
+    //the code editor is insite the variable codeEditor;
+    if(!codeEditor){
+        visualEditor = false;
+        //No code editor, we are in the visual editor
+        createCodeEditor();
+        openFileInCodeEditor(workingPath+"/"+projectName+".msa");
+    }else{
+        visualEditor = true;
+        //From code editor to visual editor
+        saveProject();
+        restoreProjectFromFile();
+    }
+}
