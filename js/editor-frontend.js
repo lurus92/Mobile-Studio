@@ -804,11 +804,43 @@ function codeToggle(){
         visualEditor = false;
         //No code editor, we are in the visual editor
         createCodeEditor();
-        openFileInCodeEditor(workingPath+"/"+projectName+".msa");
+        /*We should open the file selected in the File Explorer
+        var tree = $("#fileExplorer").fancytree("getTree");
+        if (!tree) {
+            //If the tree doesn't exist, open default msa
+            openFileInCodeEditor(workingPath+"/"+projectName+"/"+projectName+".msa");
+            return;
+        }
+        var node = tree.getActiveNode();
+        if(!node){
+           //If no node is selected, open default msa
+            openFileInCodeEditor(workingPath+"/"+projectName+"/"+projectName+".msa");
+            return; 
+        }else{
+            openFileInCodeEditor(node.data.path);
+        }*/
     }else{
         visualEditor = true;
         //From code editor to visual editor
-        saveProject();
-        restoreProjectFromFile();
+        //saveProject();
+        //restoreProjectFromFile();
+        
+        //We should open the file selected in the File Explorer
+        var tree = $("#fileExplorer").fancytree("getTree");
+        if (!tree) {
+            //If the tree doesn't exist, open default msa
+            restoreProjectFromFile();
+            return;
+        }
+        var node = tree.getActiveNode();
+        if(!node){
+           //If no node is selected, open default msa
+            restoreProjectFromFile();
+            return; 
+        }else{
+            var xml = codeEditor.getValue();
+            var sm = convertXMLtoModel(xml);
+            restoreFromSubModel(sm);
+        }
     }
 }

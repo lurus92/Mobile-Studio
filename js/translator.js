@@ -234,6 +234,17 @@ function convertXMLtoModel(xml){
     for (var i = 0; i < componentsArray.length; i++){
         var componentId = componentsArray[i].attributes["id"].value;
         submodel.screens[pageId].components[componentId] = new Component(componentId, componentsArray[i].tagName);
+        
+        //Check attributes of the xml component to restore attributes in submodel
+        
+        for (var j=1; j<componentsArray[i].attributes.length; j++){
+            //FOR NOW WE ANALYZE ONLY TEXT. Improve this
+            switch(componentsArray[i].attributes[j].name){
+                case "text": submodel.screens[pageId].components[componentId].specificAttributes.text = componentsArray[i].attributes[j].value;
+                    break;
+            }
+        }
+        
         /*submodel.screens[pageId].components[componentId] = {};
         submodel.screens[pageId].components[componentId].id= componentId;
         submodel.screens[pageId].components[componentId].isDynamic = false;
