@@ -1,0 +1,105 @@
+<html>
+    <head>
+    <meta charset="UTF-8">
+    <title>Mobile Studio v0.0.1 - Editor</title>
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.min.css">
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.structure.min.css">
+        <link rel="stylesheet" href="css/jqueryUI/jquery-ui.theme.min.css">
+        <link rel="stylesheet" href="css/jqueryUI/jquery.ui.ruler.css">
+        <link rel="stylesheet" href="css/ios.css">
+        <link rel="stylesheet" href="css/android.css">
+        
+        <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
+        <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
+        <!--script src="js/bootstrap/bootstrap.min.js"></script-->
+        <script src="classes.js"></script>
+        <script src="js/translator.js"></script>
+        <script src="js/editor-backend.js"></script> 
+        <script src="js/editor-frontend.js"></script> 
+         
+        <script src="cm/lib/codemirror.js"></script>
+        <script src="cm/mode/css/css.js"></script>
+        <script src="cm/mode/xml/xml.js"></script>
+        <script src="cm/mode/javascript/javascript.js"></script>
+        <script src="cm/mode/css/css.js"></script>
+        <script src="cm/mode/xml/xml.js"></script>
+        
+        <script src="cm/mode/htmlmixed/htmlmixed.js"></script>
+        
+        <!--script src="js/jstree/jstree.min.js"></script-->
+
+        <link rel="stylesheet" href="style.css">
+        <link rel="stylesheet" href="cm/lib/codemirror.css">
+        <link rel="stylesheet" href="cm/theme/lesser-dark.css">
+        
+        
+        <!--link rel="stylesheet" href="js/jstree/themes/default/style.min.css" /-->
+        
+        <link href="js/fancytree/skin-lion/ui.fancytree.min.css" rel="stylesheet">
+        <!--script src="js/fancytree/jquery.fancytree-all.min.js"></script-->
+        
+        <link rel="stylesheet" href="css/editor.css">
+
+        <script>
+            
+        </script>
+    </head>
+    <body>
+       <nav>
+           Mobile Studio
+           <span style="float: right;">Preview as: 
+                <select id="previewPlatformSelector">
+                   <option value="ios">iOS</option>
+                   <option value="android">Android</option>
+                </select>
+
+           </span>
+           <button id="saveButton" onclick="saveProject();">Save Project</button>
+           <!--button id="compileButton" onclick="compileForNS();">Generate NS files</button-->
+           <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>
+           <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
+           <button id="iOSGo" onclick="$('#consoleContainer').toggle();">Show/Hide console</button>
+           <button id="codeToggle();" onclick="codeToggle();">Visual/Code</button>
+       </nav>
+       <section id="loading-panel">
+           <div id="loading-darken"></div>
+           <div id="loading-popup">
+               <span>Loading</span>
+               <br>
+               <div id="loading-progress"></div>
+               <div id="loading-progress-overlay"></div>
+               <br>
+               <small style="font-size: 12px;">Writing project files, please wait</small>
+           </div>
+      </section>
+       <section id="consoleContainer" style="display:none;">Console
+           <div id="console">Console Started</div>
+       </section>
+        <table id="mainTable" style="position:absolute; height:100%; background-color: #f2f2f2;">
+            <tr>
+                <td id="componentsPanel">
+                    <h4 style="margin-left: 10px;">File Explorer</h4>
+                    <section id="fileExplorer">
+                        <button onclick="createCodeEditor();">Open JS editor</button>
+                        <button>Open Visual editor</button>
+                    </section>
+                    <hr>
+                    <section id="componentsContainer"></section>
+                </td>
+                <td id="mainContent" style="position:relative;"> <!--TODO: rename in mainContentContainer
+                     <section id="realMainContent" style="background-color:red; width:100%; height:100%;"></section>        -->
+                </td>
+                <td id="propertyPanel">
+                    <h4>Components Explorer</h4>
+                    <section id="modelExplorer"></section>
+                    <hr>
+                    <section id="properties"></section>   
+                </td>
+
+                </td>
+            </tr>
+        
+        </table>
+
+    </body>
+</html>

@@ -1,0 +1,6 @@
+*.ts
+*.js.map
+tsconfig.json
+tsd.json
+!index.d.ts
+/tests

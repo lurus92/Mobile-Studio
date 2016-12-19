@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Mobile Studio v0.0.1</title>
+    <link rel="stylesheet" href="css/startup.css">
+    <script>window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');</script>
+
+    <script>
+        var workingPath = null;
+        var projectName = null;
+        var buildForAndroid = false;
+        var buildForIOS = false;
+        var os = require('os');
+
+        
+        $(window).ready(function(){    
+                        
+            //require('shelljs/global');        Questo provoca ERRORONI!
+            
+            //checkIfNativeScriptIsPresent();
+            
+            
+            $("#createNewProject").on("click", function(){
+                    $("#firstScreen").addClass("animate");
+                    $("#secondScreen").addClass("animate");   
+            });
+            
+            $("#startEditorBtn").on("click", function(event){
+                event.preventDefault();
+                openEditorAndClose();  
+            });
+            $("#cancelButton").on("click",function(event){
+                event.preventDefault();
+                goToFirstScreen();
+            });
+            $("#btnDir").on("click",function(event){
+                event.preventDefault();
+                selectDir();
+            });
+            
+            
+            retriveProjects();
+            
+            $("#androidSelector").click(function(){
+                if (!buildForAndroid) $(this).css("background-color","#7ED321");
+                else  $(this).css("background-color","");
+                buildForAndroid = !buildForAndroid;
+            });
+            
+            $("#iOSselector").click(function(){
+                if (!buildForIOS){
+                   $(this).css("background-color","#7ED321");
+                   checkPlatform();
+                } 
+                else{
+                    $(this).css("background-color","");
+                    $("#infoBox").html("");
+                };
+                buildForIOS = !buildForIOS;
+            });
+            
+        });
+        
+        function goToFirstScreen(){
+            $("#firstScreen").removeClass("animate");
+            $("#secondScreen").removeClass("animate");
+        }
+        
+        function checkPlatform(){
+            if(os.platform()=="win32") 
+                $("#infoBox").html("<span>Warning: to run a project for iOS you will need a Mac with Xcode. It seems that you have a Windows machine: you can still build a project for iOS, but you won't be able to run it</span>")
+
+        }
+        
+        function retriveProjects(){
+            const {app} = require('electron').remote;
+            var homePath = app.getPath("userData");
+            fs = require('fs');
+            console.log(homePath+"/history");
+            fs.readFile(homePath+"/history", 'utf8', function (err,data) {
+              if (err) {
+                return console.log(err);
+              }
+              console.log("now showing raw data ");
+               strData = "["+data+"]";
+              //console.log(strData);
+              strData = strData.replace(/}{/g,'},{');
+              var dataJSON = JSON.parse(strData);
+              /*console.log("now showing parsed data");
+              console.log(dataJSON);*/
+              /*$("#projectsDrawer").append("<h2>"+dataJSON.name+"</h2>");
+              $("#projectsDrawer").append("<h3>"+dataJSON.path+"</h3>");*/
+              for(var i = 0; i<dataJSON.length; i++){
+                $("#listContainer").append(`
+                    <div class="content-prj">
+                        <h2>`+dataJSON[i].name+`</h2>
+                        <h3>`+dataJSON[i].path+`</h3>
+                    </div> 
+                `);
+               }
+              $(".content-prj").click(function(){
+                  const {ipcRenderer} = require('electron');
+                  ipcRenderer.send('asynchronous-message', ["startEditor", $(this).find("h2").text(), $(this).find("h3").text(), true]);
+              });
+            });
+        }
+        
+       /* function checkIfNativeScriptIsPresent(){
+            /*try {
+                console.log(require.resolve("tns"));
+            } catch(e) {
+                alert("Warning: NativeScript has not been found in your system. NativeScript is needed to run Mobile Studio, please install it. ");
+                window.close();
+            }
+            if (!which('blablabla')) {
+              alert('Sorry, this script requires BlaBlaBla!!!');
+              exit(1);
+            }
+        }*/
+        
+        function openEditorAndClose(){
+            const {ipcRenderer} = require('electron');
+            if(!workingPath){ alert("Please specify a valid folder"); return; }
+            projectName = $("#nameProject").val();
+            if (projectName==""){ alert("Please insert a name for the project"); return;}
+            if (!parseFloat(projectName[0]) == false){ alert("Project names cannot start with a number"); return;}
+            
+            /*var fs = new FileSystemManager(workingPath);
+            alert(fs.getWorkingPath);*/
+            else ipcRenderer.send('asynchronous-message', ["startEditor", workingPath, projectName, false]);
+        }
+        
+        
+        function selectDir(){
+            const {dialog} = require('electron').remote;
+            
+            workingPath = dialog.showOpenDialog({properties: ['openDirectory']});
+            
+            $("#dirProject").val(workingPath);
+            }
+        
+        function deleteHistory(){
+            //PUT HERE A CONFIRMATION DIALOG BOX
+            $("#listContainer").html("");
+            const {app} = require('electron').remote;
+            var homePath = app.getPath("userData");
+            fs.writeFile(homePath+"/history", "", function(err) {
+                if(err) {
+                    return console.log(err);
+                }
+                console.log("Project History cleared");
+                existingPrj = false;
+                });
+            }
+                         
+
+    </script>
+  </head>
+  <body>
+      <div id="betaLabel">
+          <div>
+              BETA
+          </div>
+      </div>
+      <section id="firstScreen">
+          <h2>Welcome</h2>
+          <img src="img/mainIcon.png"/>
+          <h1><strong>Mobile</strong> Studio</h1>
+          <h4>The first cross-platform IDE for cross-platform mobile apps</h4>
+          <br>
+          <section id="projectsDrawer">
+               <h1 onclick="deleteHistory();" style="right:0;">Delete History</h1>
+                <h1 style="left:0;">Your Projects</h1>
+                <section id="listContainer"></section>
+                <button id="createNewProject">Create a new app</button>
+          </section>
+      </section>
+      <section id="secondScreen">
+          <form>
+              <input id="nameProject" class="textInput" type="text" placeholder="Give a name to your fantastic project"/>
+              <br><input id="dirProject" class="textInput" type="text" placeholder="Select project folder"/>
+              <button id="btnDir">...</button>
+              <br>
+         
+              Build for
+              <br>
+              <br>
+              <div id="androidSelector">Android</div>
+              <div id="iOSselector" >iOS</div>
+              <br><br>
+              <button id="cancelButton">Cancel</button>
+              <button id="startEditorBtn">Start Editor</button>
+          </form>
+          <div id="infoBox"></div>
+      </section>
+  </body>
+</html>
