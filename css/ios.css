@@ -79,39 +79,22 @@
     color: black;
 }
 
-/*Switch Things*/
+/*AGAIN SWITCH*/
 
 .ios.switch{
-    display: none;
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 30px;
+    width: 50px;
 }
 
-.ios.switch + label{
-    height: 40px;
-    width: 42px;
-} 
-
-body:not(#foo) .ios.switch:checked + label{
-    background-image: url("../img/components/ios/switchOn.png");
-} 
-
-body:not(#foo) i.ios.switch + label{
-    background-image: url("../img/components/ios/switchOff.png")
+.ios.switch.enabled{
+    background-image: url(../img/components/ios/switchOn.png);
 }
-/*
-.ios.switch{
-    background-image: url("../img/components/ios/switchOff.png");
-    background-size: cover;
-    height: 10px;
-    border: none;
+/*Never used*/
+.ios.switch.disabled{
+    background-image: url(../img/components/ios/switchOff.png);
 }
-
-.ios.switch:checked{
-    background-image: url("../img/components/ios/switchOn.png");
-    background-size: cover;
-    height: 10px;
-    border: none;
-}
-END OF SWITCH*/
 
 
 .ios.slider::-webkit-slider-thumb {

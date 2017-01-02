@@ -6,8 +6,8 @@ var os = require('os');
 
 var workingPath;
 var projectName;
-
-var codeEditor; //Contains the code editor if visible or NULL
+var globalApplication = null;
+var codeEditor = null; //Contains the code editor if visible or NULL
 
 
 
@@ -37,6 +37,8 @@ function buildNewProject(config){
     var cmdBuildPrj = "";
     if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
     else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';        //TODO: CHECK FOR WIN
+    
+    cmdBuildPrj = 'tns create '+projectName+'';  //This should work cross-platform!
     
     process.stdout.on('data', function(data) {
         console.log(data); });
@@ -210,6 +212,7 @@ function saveProjectToMainScreen(){
 function storeModel(){
     //Save CSS for screens
     for (var i in application.screens){
+        if (!$("#"+i+"").attr("style")) continue;   //The screen is not actually existing.
         application.screens[""+i+""].style = $("#"+i+"").attr("style");
             //Save CSS for components
             for (var j in application.screens[""+i+""].components){
@@ -235,7 +238,7 @@ function storeModel(){
 
 function restoreProjectFromFile(){
       var path = workingPath;
-      var prjName = projectName;          //REMOVE THIS: THEY ARE GLOBAL
+      var prjName = projectName;          //REMOVE THESE: THEY ARE GLOBAL
       codeEditor = null;
       fs.readFile(path+"/"+prjName+"/"+prjName+".msa", 'utf8', function (err,data) {
       if (err) {
@@ -288,9 +291,12 @@ function restoreFromString(msaString){        //msaString is the string inside t
                       componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
                       break;
                   case "Switch":{
+                      /*
                       var checked = "";
                       if (application.screens[i].components[j].specificAttributes['set']) checked='checked="checked"'
                       componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch' "+checked+"/>";
+                      */
+                      componentHTML = "<div id='"+id+"' class='drawn-element switch enabled'></div>"
                       }
                       break;
                   case "Slider":
@@ -387,9 +393,16 @@ function restoreFromSubModel(sm){        //msaString is the string inside the fi
                       componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar' value='"+application.screens[i].components[j].specificAttributes['text']+"'/>";
                       break;
                   case "Switch":{
+                      /*
                       var checked = "";
                       if (application.screens[i].components[j].specificAttributes['set']) checked='checked="checked"'
                       componentHTML = "<input type='checkbox' id='"+id+"' class='drawn-element switch' "+checked+"/>";
+                      }*/
+                          var imgSrc="../img/components/"+platformToPreview+"/";
+                          if (application.screens[i].components[j].specificAttributes['set']) 
+                            imgSrc+="switchOn.png";
+                          else imgSrc+="switchOff.png";
+                          componentHTML = "<img src='"+imgSrc+"' class='drawn-element switch'/>";
                       }
                       break;
                   case "Slider":
@@ -443,8 +456,14 @@ function restoreFromSubModel(sm){        //msaString is the string inside the fi
         
             $("#"+i).find(".drawn-element").css("position","");
 
-
+            //Append saved style (it should be inserted in the components!)
+            //NOTE THAT THIS IS NOT THE MAXIMUM OF FLEXIBILITY!!!
+            fs.readFile(workingPath+"/"+projectName+"/app/"+i+".css", 'utf8', function(err,data){
+                //$("<style type='text/css'>"+data+"</style>").appendTo("head");
+                $("#injectedCSS").html(data);
+            });
         }
+    
     $("#loading-panel").hide();
 }
 
@@ -621,3 +640,32 @@ function saveProject(){
 }
 
 //TODO: each time you modify something in the editor, you should REPARSE everything before going to UI EDITOR!!!!
+
+function pushVisualChangesInCodeEditor(){
+    //The partial model is stored in the global variable application
+    //We should restore with the global model
+    //Only XML and CSS (?)
+    if (!globalApplication) return;
+    var screenId = application.startingScreen;
+    //CRITICAL: we are assuming that the screen Id is the same as the file name.
+    globalApplication.screens[""+screenId+""] = application.screens[""+screenId+""];
+    application = globalApplication;
+    globalApplication = null;
+    //<merge global and local obj>
+    //Object.assign(globalApplication,application);
+    //<restore global obj>
+    //application = globalApplication;
+    //globalApplication = null;
+    
+    //YOU SHOULD GO BACK TO CODE HERE
+    //visualEditor = false;
+    saveProject();
+}
+
+function pushCodeEditorChangesInVisualEditor(){
+    /*var fileExtension = codeEditor.editingFilePath.split(".")[1];
+    switch(fileExtension){
+        case "xml": application = 
+    }*/
+    console.log("ancora ciao!");
+}

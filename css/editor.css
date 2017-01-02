@@ -2,6 +2,9 @@
     display: none; 
 }
 
+html{
+   -webkit-user-select: none;
+}
 
 button:focus {
     outline:0;
@@ -389,9 +392,21 @@ svg{
     outline: none;
 }
 
+.actionButton{
+    width: 15px;
+    height: 15px;
+    border-radius: 15px;
+    color: black;
+    border-style: none;
+    border-color: white;
+    line-height: 1px;
+    padding: 0;
+    font-size: 17px;
+}
 
 /*ELEMENTS NOT VISUALIZABLE IN CERTAIN LAYOUTS*/
 
 .absoluteLayout.searchbar, .wrapLayout.searchbar{
     display: none;
 }
+

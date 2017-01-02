@@ -213,7 +213,7 @@ function convertXMLtoModel(xml){
     if (currentPage.tagName != "Page") return null;     //First tag always "Page"
     submodel["numberOfScreens"] = 1;
     var pageId = currentPage.attributes["id"].value;
-    submodel["startingPage"] = pageId;
+    submodel["startingScreen"] = pageId;
     submodel.screens = {}
     submodel.screens[pageId] = {}
     submodel.screens[pageId].id = pageId;

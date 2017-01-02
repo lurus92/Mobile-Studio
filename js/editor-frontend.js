@@ -91,6 +91,13 @@ $(window).ready(function() {
     //ios standard visualization
     $(".drawn-element").addClass("ios");
     platformToPreview = "ios";
+    
+    //MENU
+    const electron = require('electron');
+    const BrowserWindow = electron.BrowserWindow;
+    const Menu = electron.Menu;
+    const menu = Menu.buildFromTemplate(template)
+    Menu.setApplicationMenu(menu)
 });
 
 
@@ -165,7 +172,16 @@ function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //com
         case "class": //similar to ID
             break;
         case "other":{
-            if(property!="text") $("#"+oldAttr).attr(""+property+"",this.value);    //CHECK THIS
+            //Front end updates (if present), then model update
+            if(property=="set"){ //Switch
+                //Delete enabled/disabled classes
+                $("#"+oldAttr).removeClass("enabled");
+                $("#"+oldAttr).removeClass("disabled");
+                if(this.value=="true") $("#"+oldAttr).addClass("enabled");
+                else $("#"+oldAttr).addClass("disabled");
+            }
+            //TODO: check these other following things
+            if(property!="text") $("#"+oldAttr).attr(""+property+"",this.value);    
             else $("#"+oldAttr).text(this.value);
             application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.value;
 
@@ -255,14 +271,14 @@ function buildPropertiesPanel(winId,compId){
         actions += `
                 <tr>
                     <td> `+attributeToSearch.supportedActions[i]+` </td>
-                    <td style="float:right;"><input type="button" onclick="drawLine.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`');"/></td>
+                    <td style="float:right;"><button class="actionButton" onclick="drawLine.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`');">+</button></td>
                 </tr>
                 `;
       else
          actions += `
             <tr>
                 <td> `+attributeToSearch.supportedActions[i]+` </td>
-                <td style="float:right;"><button onclick="deleteAction.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`')"> ENABLED </button></td>
+                <td style="float:right;"><button onclick="deleteAction.call(this,event,'`+compId+`','`+winId+`','`+attributeToSearch.supportedActions[i]+`')">Nav to `+ attributeToSearch.supportedActions[i]+` </button></td>
             </tr>
             `;
 
@@ -319,7 +335,7 @@ function buildPropertiesPanel(winId,compId){
   });
 
 
-  $("#layoutSelector").val(application.screens.win0.layout);                
+  $("#layoutSelector").val(application.screens[""+winId+""].layout);                
   $("#layoutSelector").change();
 
 
@@ -475,8 +491,8 @@ function initializeWindowEvents(){
                                   case "SearchBar":
                                       componentHTML = "<input type='search' id='"+id+"' class='drawn-element searchbar "+layout+" "+platformToPreview+"' value='Search Here'/>";
                                       break;
-                                  case "Switch":            //WATCH THE SWITCH!
-                                      componentHTML = "<input type='checkbox' id='"+id+"' checked='checked' class='drawn-element switch "+layout+" "+platformToPreview+"'/>";
+                                  case "Switch":           /*WATCH THE SWITCH!*/
+                                      componentHTML = "<div id='"+id+"' class='drawn-element switch enabled "+layout+" "+platformToPreview+"'></div>"
                                       break;
                                   case "Slider":
                                       componentHTML = "<div id='"+id+"' class='drawn-element slider "+layout+" "+platformToPreview+"' value='50'></div>";
@@ -579,12 +595,22 @@ function initializeWindowEvents(){
                         }
                       }
           });
+    
+    var onBeforeUnloadFired = false;
 
     $(window).on("beforeunload", function() { 
-       if(dirty)
-           if(!confirm("There are some not saved changes. Do you want to exit anyway?"))
-               return false;
+       if((dirty)&&(!onBeforeUnloadFired)){
+           onBeforeUnloadFired = true;
+           if(!confirm("There are some not saved changes. Do you want to exit anyway?")){
+              window.setTimeout(resetOnBeforeUnloadFired, 10);
+              return false;
+           }
+       }
     });
+    
+    function resetOnBeforeUnloadFired() {
+       onBeforeUnloadFired = false;
+    } 
 
     /*$(".drawn-element").click(function(){
       $(".drawn-element").removeClass('selected-element');
@@ -692,6 +718,7 @@ function deleteAction(event, compId, winId,action){
 
 var lineActive = false;
 function drawLine(event, compId, winId,action){
+    var buttonSender = event.target;
     console.log(event);
     //console.log(sender);
     console.log(compId);
@@ -705,6 +732,8 @@ function drawLine(event, compId, winId,action){
         console.log("win "+winId+" comp: "+compId);
         application.screens[""+winId+""].components[""+compId+""].isDynamic = true;
         application.screens[""+winId+""].components[""+compId+""].actions[""+action+""] = document.elementFromPoint(event.clientX,event.clientY).id;
+        $(buttonSender).toggleClass("actionButton");
+        $(buttonSender).html("Nav to "+document.elementFromPoint(event.clientX,event.clientY).id);
         //console.log(document.elementFromPoint(event.clientX,event.clientY));
         lineActive = false;
         document.onmousemove = null;
@@ -782,6 +811,7 @@ function drawLine(event, compId, winId,action){
 }
 
 function createCodeEditor(){
+    visualEditor = false;
     $("#mainContent").html("<input type='textarea' id='code' style='width:100%; height: 100%'/>");
      codeEditor = CodeMirror.fromTextArea($("#code")[0], {
         lineNumbers: true,
@@ -799,28 +829,36 @@ function createCodeEditor(){
 
 
 function codeToggle(){
-    //the code editor is insite the variable codeEditor;
     if(!codeEditor){
         visualEditor = false;
+        //Code editor does not exist, we are in the visaul editor. VE -> CE
+        defaultPath = workingPath+"/"+projectName+"/"+projectName+".msa";
+        pushVisualChangesInCodeEditor();
+        /*visualEditor = false;
+        $("#fileExplorer").css("height","10%");
+        $("#componentsContainer").hide();*/
         //No code editor, we are in the visual editor
         createCodeEditor();
-        /*We should open the file selected in the File Explorer
+        //We should open the file selected in the File Explorer
         var tree = $("#fileExplorer").fancytree("getTree");
         if (!tree) {
             //If the tree doesn't exist, open default msa
-            openFileInCodeEditor(workingPath+"/"+projectName+"/"+projectName+".msa");
+            openFileInCodeEditor(defaultPath);
             return;
         }
         var node = tree.getActiveNode();
         if(!node){
            //If no node is selected, open default msa
-            openFileInCodeEditor(workingPath+"/"+projectName+"/"+projectName+".msa");
+            openFileInCodeEditor(defaultPath);
             return; 
         }else{
             openFileInCodeEditor(node.data.path);
-        }*/
+        }
     }else{
+        //CE exists: we should delete it and transition to the visual editor
         visualEditor = true;
+        $("#fileExplorer").css("height","");
+        $("#componentsContainer").show();
         //From code editor to visual editor
         //saveProject();
         //restoreProjectFromFile();
@@ -838,9 +876,31 @@ function codeToggle(){
             restoreProjectFromFile();
             return; 
         }else{
-            var xml = codeEditor.getValue();
-            var sm = convertXMLtoModel(xml);
-            restoreFromSubModel(sm);
+            //We actually have something to open.
+            var ext = codeEditor.editingFilePath.split(".")[1];
+            switch(ext){
+                case "xml":{
+                    try{
+                        var xml = codeEditor.getValue();
+                        var sm = convertXMLtoModel(xml);
+                        restoreFromSubModel(sm); 
+                    }catch(e){
+                        alert("Invalid XML, please check your sintax. Error code: "+e.toString);
+                    }
+                }
+                    break;
+                case "msa": restoreProjectFromFile();   //INSERT HERE DINAMIC CODE TRANSLATION ALSO FOR MSA
+                    break;
+                default:{
+                    alert("File type not currently supported for visual editing. Restoring storyboard.");
+                    restoreProjectFromFile();
+                } 
+            }
+            
+  
         }
+
+        codeEditor = null;
+
     }
 }

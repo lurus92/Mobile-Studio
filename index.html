@@ -60,6 +60,7 @@
                 buildForIOS = !buildForIOS;
             });
             
+            
         });
         
         function goToFirstScreen(){
@@ -76,7 +77,17 @@
         function retriveProjects(){
             const {app} = require('electron').remote;
             var homePath = app.getPath("userData");
-            fs = require('fs');
+            fs = require('fs');  
+            //First Start ever: we shoud create history folder if not existing
+            if (!fs.existsSync(homePath+"/history")){
+                fs.writeFile(homePath+"/history", "", function (err,data) {
+                  if (err) 
+                    return console.log(err);
+                  });
+                console.log("No history directory present: created one.")
+                return;
+            }
+            
             console.log(homePath+"/history");
             fs.readFile(homePath+"/history", 'utf8', function (err,data) {
               if (err) {
@@ -189,8 +200,8 @@
               <div id="androidSelector">Android</div>
               <div id="iOSselector" >iOS</div>
               <br><br>
-              <button id="cancelButton">Cancel</button>
-              <button id="startEditorBtn">Start Editor</button>
+              <button id="cancelButton" style="text-align:center;">Cancel</button>
+              <button id="startEditorBtn" style="text-align:center;">Start Editor</button>
           </form>
           <div id="infoBox"></div>
       </section>

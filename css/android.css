@@ -10,7 +10,7 @@
 
 .android.window span{
     position: absolute;
-    top: -100px;
+    top: -107px;
 }
 
 .android.header{
@@ -18,7 +18,7 @@
     background-size: contain;
     width: 100%;
     height: 88px;
-    top: -81px;
+    top: -89px;
     position: absolute;
     border: solid;
     border-width: 1px;
@@ -93,26 +93,21 @@
     color: black;
 }
 
-/*Switch Things
 
-.ios.switch{
-    display: none;
+.android.switch{
+    background-repeat: no-repeat;
+    background-size: contain;
+    height: 30px;
+    width: 40px;
 }
 
-.ios.switch + label{
-    height: 40px;
-    width: 42px;
-} 
-
-body:not(#foo) .ios.switch:checked + label{
-    background-image: url("../img/components/ios/switchOn.png");
-} 
-
-body:not(#foo) i.ios.switch + label{
-    background-image: url("../img/components/ios/switchOff.png")
+.android.switch.enabled{
+    background-image: url(../img/components/android/switchOn.png);
 }
-*/
-
+/*Never used*/
+.android.switch.disabled{
+    background-image: url(../img/components/android/switchOff.png);
+}
 
 
 .android.progress{
