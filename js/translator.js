@@ -94,10 +94,13 @@ function translateComponents(screen){
                         <ActivityIndicator id="`+screen.components[i].id+`" busy="`+screen.components[i].specificAttributes["busy"]+`" />
                         `;
                 break;
-            case "Image": componentsTranslated += `
-                        <Image id="`+screen.components[i].id+`" src="`+screen.components[i].specificAttributes["src"]+`" />
+            case "Image":{
+                    var nameImg = importImage(screen.components[i].specificAttributes["src"]);
+                    componentsTranslated += `
+                        <Image id="`+screen.components[i].id+`" src="~/images/`+nameImg+`" />
                         `; 
                 break;
+                }
             //PUT SOMETHING IN LIST! (access to listElements array in model)
             case "ListView": componentsTranslated += `
                         <ListView id="`+screen.components[i].id+`" />

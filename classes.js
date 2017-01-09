@@ -51,7 +51,7 @@ class Component {
                       break;
                   case "ActivityIndicator": this.specificAttributes["busy"] = true;
                       break;
-                  case "Image": this.specificAttributes["src"] = "";
+                  case "Image": this.specificAttributes["src"] = "img/mainIcon.png";
                       break;
                   case "ListView": this.specificAttributes["listElements"] = [];
                       break;

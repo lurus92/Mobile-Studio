@@ -84,8 +84,9 @@
 .ios.switch{
     background-repeat: no-repeat;
     background-size: contain;
+    background-position: center;
     height: 30px;
-    width: 50px;
+    width: 100%;
 }
 
 .ios.switch.enabled{

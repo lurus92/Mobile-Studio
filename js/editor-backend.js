@@ -26,7 +26,6 @@ function saveSettings (settings) {
 function buildNewProject(config){
     workingPath = config[1][0];
     projectName = config[2];               //config[2] name of the project from first screen
-    //Backend stuff
     //TODO: WORK HERE
     var sys = require('util'),
         childProcess = require('child_process'),
@@ -35,8 +34,8 @@ function buildNewProject(config){
     
     //Multiplatform things
     var cmdBuildPrj = "";
-    if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
-    else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';        //TODO: CHECK FOR WIN
+    /*if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
+    else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';  */      //TODO: CHECK FOR WIN
     
     cmdBuildPrj = 'tns create '+projectName+'';  //This should work cross-platform!
     
@@ -45,7 +44,6 @@ function buildNewProject(config){
     process.stdin.on('data', function(data) {
         console.log(data); });
     
-    /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT***/
     childProcess.execSync(cmdBuildPrj, {cwd: workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
         //Callback function to execute when command is executed
         console.log("cmd: " + error + " : "  + stdout);
@@ -135,19 +133,20 @@ function buildNewProject(config){
 }
 
 function run(mode){
+    if(!mode) mode=$("#previewPlatformSelector").val();
     var sys = require('util'),
         childProcess = require('child_process'),
         fixPath = require('fix-path');
     fixPath();      //Required to reset path and execute commands
     var cmdRunPrj
     switch(mode){
-        case "iosEmulator": cmdRunPrj = '/usr/local/bin/tns run ios --emulator';
+        case "ios|simulator": cmdRunPrj = '/usr/local/bin/tns run ios --emulator';
             break;
-        case "iosReal": cmdRunPrj = "to DO!"
+        case "ios|real": cmdRunPrj = "to DO!"
             break;
-        case "androidEmulator": cmdRunPrj = '/usr/local/bin/tns run android --emulator';
+        case "android|simulator": cmdRunPrj = '/usr/local/bin/tns run android --emulator';
             break;
-        case "androidReal": cmdRunPrj = '/usr/local/bin/tns run android';
+        case "android|real": cmdRunPrj = '/usr/local/bin/tns run android';
             break;
         default: alert("Missing running mode");
     }
@@ -209,7 +208,7 @@ function saveProjectToMainScreen(){
 }
 
 
-function storeModel(){
+function storeModel(silentMode){
     //Save CSS for screens
     for (var i in application.screens){
         if (!$("#"+i+"").attr("style")) continue;   //The screen is not actually existing.
@@ -232,7 +231,7 @@ function storeModel(){
     
     if(!existingPrj) saveProjectToMainScreen();     //ELSE, we could think to put at top, save timestamp, etc.
     updateFileExplorer();
-    alert("Project Saved");
+    if (!silentMode) alert("Project Saved");
     dirty = false;
 }
 
@@ -306,7 +305,7 @@ function restoreFromString(msaString){        //msaString is the string inside t
                       componentHTML = "<progress id='"+id+"' class='drawn-element progress' value='"+application.screens[i].components[j].specificAttributes['value']+"/>";
                       break;
                   case "Image":
-                      componentHTML = "<img id='"+id+"' class='drawn-element image' />";
+                      componentHTML = "<img id='"+id+"' class='drawn-element image' src='"+application.screens[i].components[j].specificAttributes['src']+"'/>";
                       break;
                   case "ListView":
                       componentHTML = "<div id='"+id+"' class='drawn-element listview'/>";
@@ -412,7 +411,7 @@ function restoreFromSubModel(sm){        //msaString is the string inside the fi
                       componentHTML = "<progress id='"+id+"' class='drawn-element progress' value='"+application.screens[i].components[j].specificAttributes['value']+"/>";
                       break;
                   case "Image":
-                      componentHTML = "<img id='"+id+"' class='drawn-element image' />";
+                      componentHTML = "<img id='"+id+"' class='drawn-element image' src='"+application.screens[i].components[j].specificAttributes['src']+"'/>";
                       break;
                   case "ListView":
                       componentHTML = "<div id='"+id+"' class='drawn-element listview'/>";
@@ -622,16 +621,16 @@ function createComponentsExplorer(){
     }
 }
 
-function saveProject(){
+function saveProject(silentMode){
     if (!codeEditor){
         //Code editor not displayed, save screen to msa
-        storeModel();
+        storeModel(silentMode);
         compileForNS();
     }else{
         //Code editor displayed: you should save the content of the editor!
         fs.writeFile(codeEditor.editingFilePath, codeEditor.getValue(), function (err) {
         if (err) {
-            console.info("There was an error attempting to save your data.");
+            console.info("There was an error attempting to save data.");
             console.warn(err.message);
             return;
         }
@@ -668,4 +667,29 @@ function pushCodeEditorChangesInVisualEditor(){
         case "xml": application = 
     }*/
     console.log("ancora ciao!");
+}
+
+function importImage(completeImgPath){
+        var sys = require('util'),
+        childProcess = require('child_process'),
+        fixPath = require('fix-path');
+    fixPath();      //Required to reset path and execute commands
+    
+    //Attenction to img name with spaces
+    var imgNameArray = completeImgPath.split("/");  //CHECK FOR WIN
+    var imgName = imgNameArray[imgNameArray.length-1];
+    if (imgName.split(" ").length>1) imgName = "'"+imgName+"'";
+    imgNameArray[imgNameArray.length-1] = imgName;
+    completeImgPath = imgNameArray.join("/");
+    var cmdCopy = "mkdir images||cp "+completeImgPath+" images/";           //CHECK FOR WIN
+
+    /*****DECOMMENT NEXT LINES IF YOU WANT TO BUILD NS PROJECT***/
+    childProcess.execSync(cmdCopy, {cwd: workingPath+"/"+projectName+"/app"}, function(error, stdout, stderr) {
+        //Callback function to execute when command is executed
+        console.log("cmd: " + error + " : "  + stdout);
+        //$("#loading-panel").hide();
+    });
+    
+    return imgName;
+
 }

@@ -6,8 +6,25 @@ html{
    -webkit-user-select: none;
 }
 
-button:focus {
+button:focus, input:focus, select:focus{
     outline:0;
+}
+
+
+.ui-tooltip {
+    background: #666;
+    color: white;
+    border: none;
+    padding: 0;
+    opacity: 0.8;
+    top: 43px;
+    border-radius: 4px;
+    left: 670.266px;
+}
+.ui-tooltip-content {
+    position: relative;
+    padding: 2px;
+    font-size: 12px;
 }
 
 
@@ -30,14 +47,111 @@ nav{
     width: 100%;
     line-height: 32px;
     padding-left: 10px;
+    padding-right: 5%;
 }
 
 nav button{
     float: right;
     /* top: 10px; */
+    /*background-color: black;*/
+    box-shadow: inset 1px 1px 1px #000;
     margin-top: 8px;
     margin-right: 9px;
-    
+    color: white;
+    border: none;
+    background-position: center;
+    height: 23px;
+    border: none;
+    color: white;
+    background-color: #171616;
+    position: relative;
+    top: -3px;
+    min-width: 25px;
+    background-size: contain;
+    background-position: center;
+    border-radius: 4px;
+
+}
+
+#saveButton{
+    background-image: url("../img/ui-icons/save.png");
+}
+
+#consoleToggle{
+    background-image: url("../img/ui-icons/console.png");
+}
+
+#previewPlatformSelector{
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 5px;
+    background-color: #4A4A4A;
+    color: white;
+    border: none;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    position: relative;
+    top: 5px;
+    text-align: center;
+    float: right;
+    box-shadow: inset 1px 1px 1px #000;
+    background-image: url(../img/ui-icons/dropdown.png);
+    background-size: contain;
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+#codeToggle{
+    color: white;
+    /*background-color: black;*/
+    border-style: solid;
+    border-width: 0;
+    padding: 1px;
+    position: relative;
+    top: -3px;
+    border-radius: 6px;
+    height: 23px;
+}
+
+#codeToggle span{
+    padding: 4;
+    border-radius: 4px;
+}
+
+#codeToggle span.enabled{
+    background-color: #dddddd;
+    color: black;
+}
+
+#runButton{
+    /*height: 23px;
+    border: none;
+    color: white;
+    background-color: #171616;
+    position: relative;
+    top: -3px;*/
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 25px;
+    background-image: url("../img/ui-icons/run.png");
+    background-size: contain;
+}
+
+#debugButton{
+    /*box-shadow: inset 1px 1px 1px #000;
+    width: 25px;
+    height: 23px;
+    border: none;
+    color: white;
+    background-color: #171616;
+    position: relative;
+    top: -3px;
+    background-position: center;
+    border-radius: 4px;*/
+    background-image: url("../img/ui-icons/bug.png");
+    /*background-size: contain;*/
 }
 
 table{
@@ -132,11 +246,35 @@ td {
 
 #componentsPanel{
     background-color: #2f2f2f;
-    width: 200px;
+    width: 260px;
     height: 100%;
     color: white;
     text-align: center;
-    
+    position: relative;
+}
+
+#closePanelButton{
+    position: absolute;
+    color: white;
+    top: 32px;
+    z-index: 1;
+    box-shadow: inset 1px 1px 1px #000;
+    border: none;
+    color: white;
+    background-color: #171616;
+    background-size: contain;
+    background-position: center;
+
+}
+#closePanelButton.panelOpen{
+    left: 243px;
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+}
+#closePanelButton.panelClosed{
+    left: 0px; 
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
 }
 
 /*#mainTable{
@@ -208,10 +346,12 @@ td {
 .component-description{
     font-size: small;
     color: gray;
+    margin-right: 5px;
 }
 
 .component-title{
-    margin-top: 10px;
+    margin-top: 6px;
+    margin-bottom: 2px;
 }
 
 

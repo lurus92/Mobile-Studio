@@ -130,6 +130,20 @@
             }
         }*/
         
+        function checkIfAndroidIsPresent(){
+            
+            var sys = require('util'),
+                childProcess = require('child_process'),
+                fixPath = require('fix-path');
+            var cmd = "android -h";
+            fixPath();
+            childProcess.execSync(cmd, function(error, stdout, stderr) {
+                console.log(error + "|"+stdout+"|"+stderr);
+
+                if(!stderr) alert("Android not found!");
+            });
+        }
+        
         function openEditorAndClose(){
             const {ipcRenderer} = require('electron');
             if(!workingPath){ alert("Please specify a valid folder"); return; }

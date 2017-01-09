@@ -10,8 +10,9 @@
         <link rel="stylesheet" href="css/android.css">
         
         <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
-        <link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
+        <!--link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
         <!--script src="js/bootstrap/bootstrap.min.js"></script-->
+        <script src="js/bootstrap-tooltip.js"></script>
         <script src="classes.js"></script>
         <script src="js/translator.js"></script>
         <script src="js/menu.js"></script>
@@ -49,19 +50,25 @@
     <body>
        <nav>
            Mobile Studio
-           <span style="float: right;">Preview as: 
-                <select id="previewPlatformSelector">
-                   <option value="ios">iOS</option>
-                   <option value="android">Android</option>
-                </select>
-
-           </span>
-           <button id="saveButton" onclick="saveProject();">Save Project</button>
+            
            <!--button id="compileButton" onclick="compileForNS();">Generate NS files</button-->
-           <button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button>
-           <button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button>
-           <button id="iOSGo" onclick="$('#consoleContainer').toggle();">Show/Hide console</button>
-           <button id="codeToggle();" onclick="codeToggle();">Visual/Code</button>
+           <!--button id="androidGo" onclick="run('androidReal');">Run in Android (real)</button-->
+           <!--button id="iOSGo" onclick="run('iosEmulator');">Run in iOS (sim)</button-->
+           <button id="consoleToggle" onclick="$('#consoleContainer').toggle();" title="Show/Hide Console"></button>
+           <button id="debugButton" onclick="run()" data-toggle="tooltip" title="Debug the app"></button>
+           <button id="runButton" onclick="run();" data-toggle="tooltip" title="Run the app"></button>
+           <select id="previewPlatformSelector" data-toggle="tooltip" title="Select here the platform you wish to deploy or preview your app">
+               <option value="ios|simulator">iOS Simulator</option>
+               <option value="ios|real">iOS Real Device</option>
+               <option value="android|simulator">Android Simulator</option>
+               <option value="android|real">Android Real Device</option>
+           </select>
+           <button id="codeToggle" onclick="codeToggle();">
+               <span class="enabled">Visual</span>
+               <span>Code</span>
+           </button>
+           <button id="saveButton" onclick="saveProject();" title="Save Project"></button>
+
        </nav>
        <section id="loading-panel">
            <div id="loading-darken"></div>
@@ -88,6 +95,8 @@
                     <hr>
                     <section id="componentsContainer"></section>
                 </td>
+                <button id="closePanelButton" class="panelOpen" onclick="toggleComponentPanelVisualization();"><</button>
+
                 <td id="mainContent" style="position:relative;"> <!--TODO: rename in mainContentContainer
                      <section id="realMainContent" style="background-color:red; width:100%; height:100%;"></section>        -->
                 </td>

@@ -23,9 +23,9 @@ $(window).ready(function() {
 
     //Graphic Initialization
    // $( "#mainContent" ).resizable();
-    $( "#componentsPanel" ).resizable();
+    // $( "#componentsPanel" ).resizable(); WE NEED THAT THIS SHOULD BE RESIZABLE? NO
     /*$("#mainTable").colResizable({
-        liveDrag:true
+        liveDrag:true 
     });*/
     $( "#componentsPanel" ).droppable();
     $( "#mainContent" ).droppable();
@@ -34,11 +34,12 @@ $(window).ready(function() {
     $( "#mainContent" ).ruler();
 
     $("#previewPlatformSelector").change(function(){
-        if(this.value=="ios"){
+        var platform = this.value.split("|")[0];
+        if(platform=="ios"){
             $(".drawn-element").removeClass("android");
             $(".drawn-element").addClass("ios");
             platformToPreview = "ios";
-        }else{
+        }else if (platform=="android"){
             $(".drawn-element").removeClass("ios");
             $(".drawn-element").addClass("android");
             platformToPreview = "android";
@@ -92,12 +93,14 @@ $(window).ready(function() {
     $(".drawn-element").addClass("ios");
     platformToPreview = "ios";
     
+    $(document).tooltip();
+    
     //MENU
     const electron = require('electron');
     const BrowserWindow = electron.BrowserWindow;
     const Menu = electron.Menu;
-    const menu = Menu.buildFromTemplate(template)
-    Menu.setApplicationMenu(menu)
+    const menu = Menu.buildFromTemplate(template);
+    Menu.setApplicationMenu(menu);
 });
 
 
@@ -171,7 +174,7 @@ function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //com
             break;
         case "class": //similar to ID
             break;
-        case "other":{
+        default:{
             //Front end updates (if present), then model update
             if(property=="set"){ //Switch
                 //Delete enabled/disabled classes
@@ -180,10 +183,22 @@ function setNewAttr(event,attrType,oldAttr,compWin,winId,property){        //com
                 if(this.value=="true") $("#"+oldAttr).addClass("enabled");
                 else $("#"+oldAttr).addClass("disabled");
             }
-            //TODO: check these other following things
+            /*TODO: check these other following things
             if(property!="text") $("#"+oldAttr).attr(""+property+"",this.value);    
-            else $("#"+oldAttr).text(this.value);
-            application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.value;
+            else $("#"+oldAttr).text(this.value); */
+            if (((attrType=="TextField")||(attrType=="TextView"))&&(property=="text"))
+                //in these components the text in NS is the val in HTML
+                $("#"+oldAttr).val(this.value);
+            if (property=="src"){
+                $("#"+oldAttr).attr(""+property+"", this.files[0].path); //for img path is different
+                application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.files[0].path;
+            }else if(property=="text"){
+                $("#"+oldAttr).text(this.value);
+                application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.value;
+            }else{
+                $("#"+oldAttr).attr(""+property+"",this.value);
+                application.screens[""+winId+""].components[""+oldAttr+""].specificAttributes[""+property+""] = this.value;
+            }
 
         }
 
@@ -252,11 +267,27 @@ function buildPropertiesPanel(winId,compId){
 
 `; //Insert here other window-specific attributes
         }else for(var i in attributeToSearch.specificAttributes){
+        //the specific attributes can be seen in different ways instead of a simple text box
         attributes+=`              
                 <tr>
                     <td>`+i+`</td>
-                    <td style="float:right;">
-                        <input type="text" value="`+attributeToSearch.specificAttributes[i]+`" onchange="setNewAttr.call(this,event,'other','`+attributeToSearch.id+`','`+compId+`','`+winId+`','`+i+`')"/>
+                    <td style="float:right;">`
+        switch(i){
+                //TODO: CHECK THE CHECKED
+            case "set": 
+                attributes+=`
+                                <input type="checkbox" checked="`+attributeToSearch.specificAttributes[i]?"checked":""+`" onchange="setNewAttr.call(this,event,'`+attributeToSearch.type+`','`+attributeToSearch.id+`','`+compId+`','`+winId+`','`+i+`')"/>`;
+                break;
+            case "src":
+                attributes+=`
+                                <input style=" width: 132px;" type="file" src="`+attributeToSearch.specificAttributes[i]+`" onchange="setNewAttr.call(this,event,'`+attributeToSearch.type+`','`+attributeToSearch.id+`','`+compId+`','`+winId+`','`+i+`')"/>`;
+                break;
+                
+            default: 
+                    attributes+=`
+                                <input type="text" value="`+attributeToSearch.specificAttributes[i]+`" onchange="setNewAttr.call(this,event,'`+attributeToSearch.type+`','`+attributeToSearch.id+`','`+compId+`','`+winId+`','`+i+`')"/>`;
+        }
+        attributes+=`
                     </td>
                 </tr>`;
     }
@@ -504,7 +535,7 @@ function initializeWindowEvents(){
                                       componentHTML = "<div id='"+id+"' class='drawn-element activity-indicator "+layout+" "+platformToPreview+"'></div>";
                                       break;
                                   case "Image":
-                                      componentHTML = "<img id='"+id+"' class='drawn-element image "+layout+" "+platformToPreview+"'/>";
+                                      componentHTML = "<img id='"+id+"' class='drawn-element image "+layout+" "+platformToPreview+"' src='img/mainIcon.png'/>";
                                       break;
                                   case "ListView":      //MANAGE LISTVIEWS!
                                       componentHTML = "<div id='"+id+"' class='drawn-element listview "+layout+" "+platformToPreview+"'/>";
@@ -626,6 +657,8 @@ function initializeWindowEvents(){
         }
 
     });
+    
+    //saveProject("silent");
 
 }
 
@@ -647,22 +680,46 @@ function initialization(config){        //config[1]: working path [it is in 0 po
 
     document.title += " - "+projectName;
 
-
-
-    /*****************************FRONT END*******************************/
     //$("#filePanel").append(config[1]);
 
     var components = ["Screen","Label","Button","TextField","TextView","SearchBar","Switch","Slider","Progress","ActivityIndicator","Image","ListView","HtmlView","WebView","TabView","SegmentedBar","DatePicker","TimePicker","ListPicker","Dialogs"];
 
-    var componentsDescription = components;
+    var componentsDescription = ["A single view of the app",
+                                 "A text label that shows read-only text",
+                                 "A standard button that reacts to a tap event",
+                                 "An editable single-line text field",
+                                 "An editable multi-line text view",
+                                 "An interface for entering search queries",
+                                 "A two-state toggle switch",
+                                 "A slider that you can use to pick a numeric value within a range",
+                                 "A bar indicator of a progress in a operation",
+                                 "A  spinner indicator which shows that a task is in progress",
+                                 "A container able to show an image",
+                                 "A vertically scrolling list of items",
+                                 "A view able to display HTML content",
+                                 "A view able to show web pages",
+                                 "A control that let you implement tab navigation.",
+                                 "A discrete selection input control",
+                                 "A control that let you pick a date.",
+                                 "A control that let you pick a time.",
+                                 "A control that let you pick a value from a list.",
+                                 "A module that let you create and show dialog windows."];
+    
+    var working = [0,1,2,3,4,5,6,7,8,9,10];
+    var partiallyWorking = [16,17,18];
+    var notWorking = [11,12,13,14,15,19];
 
     for(var i=0; i<components.length; i++){
         /*if (i==0) $("#componentsPanel").append("<div class='component ui-widget-content'>Screen</div>");
         else if (i==1) $("#componentsPanel").append("<div class='component ui-widget-content'>TEXT</div>");
         else $("#componentsPanel").append("<div class='component ui-widget-content'>Component "+i+"</div>");*/
+        var devBkg = "";
+        if (working.indexOf(i)>-1) devBkg=" background-color: green;";
+        else if (partiallyWorking.indexOf(i)>-1) devBkg=" background-color: orange;";
+        else if (notWorking.indexOf(i)>-1) devBkg=" background-color: red;";
         $("#componentsContainer").append(`
                     <div class='component ui-widget-content'>
-                        <div class="component-preview" style="background-image: url('img/components-icons/`+components[i]+`.png');" ></div>
+                        <div class="component-preview" style="background-image: url('img/components-icons/`+components[i]+`.png');`+devBkg+`" ></div>
                         <div class="component-title">`+components[i]+`</div>
                         <div class="component-description">`+componentsDescription[i]+`</div>
                     </div>`);
@@ -829,6 +886,8 @@ function createCodeEditor(){
 
 
 function codeToggle(){
+    $("#codeToggle").find("span").toggleClass("enabled");
+
     if(!codeEditor){
         visualEditor = false;
         //Code editor does not exist, we are in the visaul editor. VE -> CE
@@ -901,6 +960,23 @@ function codeToggle(){
         }
 
         codeEditor = null;
+    }
+}
 
+function toggleComponentPanelVisualization(){
+    var currentOffset = parseInt($("#componentsPanel").css("left"));
+    if (currentOffset == 0){
+        //Panel visible
+        //FACCIAMO CHE LO metti in HIDE
+        $("#componentsPanel").hide();
+        $("#closePanelButton").removeClass("panelOpen");
+        $("#closePanelButton").addClass("panelClosed");
+        $("#closePanelButton").text(">");        
+    }else{
+        //Panel not visible
+        $("#componentsPanel").show();
+        $("#closePanelButton").removeClass("panelClosed");
+        $("#closePanelButton").addClass("panelOpen");
+        $("#closePanelButton").text("<");
     }
 }
