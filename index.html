@@ -20,6 +20,8 @@
             
             //checkIfNativeScriptIsPresent();
             
+            //checkRequirements();
+            
             
             $("#createNewProject").on("click", function(){
                     $("#firstScreen").addClass("animate");
@@ -178,6 +180,44 @@
                 existingPrj = false;
                 });
             }
+        
+        function checkRequirements(){
+            const {ipcRenderer} = require('electron');
+            const {shell} = require('electron');
+            var cmdNode = "node --version";
+            var sys = require('util'),
+                childProcess = require('child_process'),
+                fixPath = require('fix-path');
+            process.stdout.on('data', function(data) {
+                console.log(data); });
+            process.stdin.on('data', function(data) {
+                console.log(data); });
+            //Node.js check
+            /*childProcess.execSync(cmdNode, function(error, stdout, stderr) {
+                if(error){
+                    if(!confirm("Node.js seems not installed in your system and it is required to run Mobile Studio. Do you wish to open the website to download it?"))
+                          ipcRenderer.send('asynchronous-message', ["terminate"]);
+                        else{
+                          shell.openExternal('https://nodejs.org/en/');
+                          ipcRenderer.send('asynchronous-message', ["terminate"]);
+                        }
+                }
+            });*/
+            //If no error, we go on
+            //Check of NativeScript
+            var cmdNS = "nativescript";
+            childProcess.execSync(cmdNS,  function(error, stdout, stderr) {
+                if(error){
+                    alert("NativeScript has not been found in your system. Mobile Studio will install it now, but the process can be long and the interface may seem stuck, while it isn't. ");
+                    childProcess.execSync("npm install -g nativescript", {cwd: workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
+                        if(error){
+                            alert("Something went very wrong. Please check the installation of NativeScript has been successfull reopening the program.");
+                        }
+                        alert("Installation successful.");
+                    });
+                }
+            });
+        }
                          
 
     </script>

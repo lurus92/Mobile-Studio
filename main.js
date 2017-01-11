@@ -92,10 +92,15 @@ const {ipcMain} = require('electron');
 
 ipcMain.on('asynchronous-message', (event, arg) => {
   console.log(arg);
-  if(arg[0]=="startEditor"){        //arg[0] is the name of the message
+  switch(arg[0]){
+      case "startEditor": createEditorWindow(arg[1], arg[2], arg[3]);
+          break;
+      case "terminate": app.quit();
+  }
+  /*if(arg[0]=="startEditor"){        //arg[0] is the name of the message
     //prepareNS(arg[1]);
     createEditorWindow(arg[1], arg[2], arg[3]);     //arg[1] and followers are other parameters
-  }
+  }*/
 });
 
 

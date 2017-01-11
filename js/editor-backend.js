@@ -23,6 +23,9 @@ function saveSettings (settings) {
     });
 }
 
+
+                          
+
 function buildNewProject(config){
     workingPath = config[1][0];
     projectName = config[2];               //config[2] name of the project from first screen
@@ -44,10 +47,9 @@ function buildNewProject(config){
     process.stdin.on('data', function(data) {
         console.log(data); });
     
-    childProcess.execSync(cmdBuildPrj, {cwd: workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
-        //Callback function to execute when command is executed
-        console.log("cmd: " + error + " : "  + stdout);
-        //$("#loading-panel").hide();
+    childProcess.execSync(cmdBuildPrj, {cwd:  workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
+            //Callback function to execute when command is executed
+            if(error) alert("Critical error: "+error);
     });
 
     
@@ -133,6 +135,7 @@ function buildNewProject(config){
 }
 
 function run(mode){
+    saveProject("silent");
     if(!mode) mode=$("#previewPlatformSelector").val();
     var sys = require('util'),
         childProcess = require('child_process'),
@@ -658,7 +661,7 @@ function pushVisualChangesInCodeEditor(){
     
     //YOU SHOULD GO BACK TO CODE HERE
     //visualEditor = false;
-    saveProject();
+    saveProject("silent");
 }
 
 function pushCodeEditorChangesInVisualEditor(){
