@@ -40,24 +40,38 @@ function buildNewProject(config){
     /*if(os.platform()=="win32") cmdBuildPrj = 'tns create '+projectName+''; 
     else cmdBuildPrj = '/usr/local/bin/tns create '+projectName+'';  */      //TODO: CHECK FOR WIN
     
-    cmdBuildPrj = 'tns create '+projectName+'';  //This should work cross-platform!
+    cmdBuildPrj = 'tns create '+projectName+' --log trace';  //This should work cross-platform!
     
     process.stdout.on('data', function(data) {
         console.log(data); });
     process.stdin.on('data', function(data) {
         console.log(data); });
-    
-    childProcess.execSync(cmdBuildPrj, {cwd:  workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
+    var i=0; 
+    var builderProcess = childProcess.exec(cmdBuildPrj, {cwd:  workingPath, stdio:[0,1,2]}, function(error, stdout, stderr) {
             //Callback function to execute when command is executed
             if(error) alert("Critical error: "+error);
+            else{   
+                buildManifest();
+                //saveProjectToMainScreen();
+                createComponentsExplorer();
+                dirty = true;
+                createFileExplorer();
+                
+                if(os.platform()=="darwin") iOSFinalization();
+                
+                $("#loading-panel").hide();
+            }
+    });
+
+    builderProcess.stdout.on('data', function(data) {
+        console.log(data); 
+        $("#loading-progress").val($("#loading-progress").val()+0.02)
     });
 
     
-    /****ADDING IOS THING*******/
-    
-    if(os.platform()=="darwin"){   //This things work only on a Mac
+    /****ADDING IOS THING******* TO DO IF IOS SELECTED*/
+    function iOSFinalization(){
         var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
-
         childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName, stdio:[0,1,2]}, function(error, stdout, stderr) {
             //Callback function to execute when command is executed
             console.log("cmd: " + error + " : "  + stdout);
@@ -73,21 +87,6 @@ function buildNewProject(config){
         //$("#loading-panel").hide();
     });*/
 
-    buildManifest();
-   // saveProjectToMainScreen();
-    createComponentsExplorer();
-    dirty = true;
-    $("#loading-panel").hide();
-    
-    //OLD FILE VISUALIZATION
-    /*
-    files = getFiles(path+"/"+name);
-
-    for (var i in files){
-        $("#filePanel").append(files[i]+"<br>");
-    }*/
-
-    //$("#filePanel").hide();
                                 
 }
 

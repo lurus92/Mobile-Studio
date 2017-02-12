@@ -19,7 +19,6 @@ function translateScreen(screen){
                             `+translateComponents(screen)+`
                         </StackLayout>
                     </Page>`;
-            //return concat("x","y");
             break;
         case "wrapLayout":
             return `<Page id="`+screen.id+`" loaded="loadView`+screen.id+`">
@@ -27,7 +26,6 @@ function translateScreen(screen){
                             `+translateComponents(screen)+`
                         </WrapLayout>
                     </Page>`;
-            //return concat("x","y");
             break;
         case "absoluteLayout":
             return `<Page id="`+screen.id+`" loaded="loadView`+screen.id+`">

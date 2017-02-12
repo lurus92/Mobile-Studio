@@ -5,21 +5,7 @@ var dirty = false;
 //SupportedCSS: CSS tags that can be translated by NS
 var supportedCSS = ['color','background-color','background-image','background-repeat','background-position','background-size','border-color','border-width','border-radius','font','font-family','font-size','font-style','font-weight','text-align','text-decoration','text-transform','letter-spacing','z-index','clip-path','vertical-align','horizontal-align','margin','margin-top','margin-right','margin-bottom','margin-left','width','height','min-width','min-height','padding','padding-top','padding-right','padding-bottom','padding-left','visibility','opacity'];
 
-//var messageReceived = null;
-window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');
-//window.$ = window.jQuery = require('./js/zepto.js');
-require('./js/jquery-ui.js');
-require('./js/jquery.ui.ruler.js');
-require('./js/colResizable-1.6.min.js');
-//require('./js/jstree/jstree.js');
-require('./js/fancytree/jquery.fancytree-all.min.js');
-//require('./js/jquery.zoomooz.js');
-var model = require('./classes.js');
-let application = new model.Application(); 
-platformToPreview = "ios";
-visualEditor = true;
-
-$(window).ready(function() {
+$(window).on("load",function() {
 
     //Graphic Initialization
    // $( "#mainContent" ).resizable();
@@ -672,7 +658,7 @@ function initialization(config){        //config[1]: working path [it is in 0 po
     if (!existingPrj) buildNewProject(config);  
     else restoreProjectFromFile();       //Check Indexes
     //$("#loading-panel").hide();
-    createFileExplorer();
+    //createFileExplorer();
 
     /*$('#fileExplorer').fileTree({ root: config[2]+"/"+config[1] }, function(file) {
         alert(file);

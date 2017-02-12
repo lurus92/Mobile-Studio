@@ -425,7 +425,7 @@ text-align: center;
     padding: 20;
     border-radius: 10px;
 }
-
+/*
 #loading-progress{
     margin: 10 0 10 0;
     height: 15px;
@@ -435,7 +435,7 @@ text-align: center;
     background: url('../img/loading.gif') repeat-x;
     opacity: 0.25;
 }
-
+*/
 #consoleContainer{
     background-color: #2f2f2f;
     position: absolute;

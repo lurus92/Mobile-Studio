@@ -12,12 +12,29 @@
         <!-- link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" -->
         <!--link rel="stylesheet" href="css/bootstrap/bootstrap-theme.min.css">
         <!--script src="js/bootstrap/bootstrap.min.js"></script-->
+        
+        <script>
+            //var messageReceived = null;
+            window.$ = window.jQuery = require('./js/jquery-3.0.0.min.js');
+            //window.$ = window.jQuery = require('./js/zepto.js');
+            require('./js/jquery-ui.js');
+            require('./js/jquery.ui.ruler.js');
+            require('./js/colResizable-1.6.min.js');
+            //require('./js/jstree/jstree.js');
+            require('./js/fancytree/jquery.fancytree-all.min.js');
+            //require('./js/jquery.zoomooz.js');
+            var model = require('./classes.js');
+            let application = new model.Application(); 
+            platformToPreview = "ios";
+            visualEditor = true;
+        </script>
         <script src="js/bootstrap-tooltip.js"></script>
         <script src="classes.js"></script>
         <script src="js/translator.js"></script>
         <script src="js/menu.js"></script>
         <script src="js/editor-backend.js"></script> 
         <script src="js/editor-frontend.js"></script> 
+
          
         <script src="cm/lib/codemirror.js"></script>
         <script src="cm/mode/css/css.js"></script>
@@ -75,8 +92,7 @@
            <div id="loading-popup">
                <span>Loading</span>
                <br>
-               <div id="loading-progress"></div>
-               <div id="loading-progress-overlay"></div>
+               <progress id="loading-progress" value="0"></progress>
                <br>
                <small style="font-size: 12px;">Writing project files, please wait</small>
            </div>
