@@ -17,7 +17,8 @@ function createStartWindow() {
       height: 600,
       resizable: false,
       icon: `file://${__dirname}/img/startupIcon.png`,
-      titleBarStyle: 'hidden'
+      titleBarStyle: 'hidden',
+      vibrancy: 'dark' 
 
   });
 }else{

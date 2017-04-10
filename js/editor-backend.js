@@ -69,7 +69,7 @@ function buildNewProject(config){
     });
 
     
-    /****ADDING IOS THING******* TO DO IF IOS SELECTED*/
+    /****ADDING IOS THINGS******* TO DO IF IOS SELECTED*/
     function iOSFinalization(){
         var cmdIOS = '/usr/local/bin/tns platform add ios && /usr/local/bin/tns install'
         childProcess.execSync(cmdIOS, {cwd:  workingPath+"/"+projectName, stdio:[0,1,2]}, function(error, stdout, stderr) {
