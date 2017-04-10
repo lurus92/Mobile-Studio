@@ -1,18 +1,20 @@
 # Mobile Studio
 Mobile Studio is a simple, cross-platform NativeScript IDE able to develop native applications for iOS and Android.
+![alt tag](https://github.com/lurus92/Mobile-Studio/blob/master/MobileStudio.png)
+
 
 ## Libraries and Technology Used:
-• Electron (to convert a JS app to a native desktop one)
-• NativeScript (to convert a simil-JS code to native Android/iOS)
-• jQuery Mobile (utility)
-• jQueryUI / Bootstrap (Front-End)
-• Node.js (Back-End)
+* Electron (to convert a JS app to a native desktop one)
+* NativeScript (to convert a simil-JS code to native Android/iOS)
+* jQuery Mobile (utility)
+* jQueryUI / Bootstrap (Front-End)
+* Node.js (Back-End)
 
 ## Prerequisites
 These components should be installed in order to let the software run:
-• Node.js https://nodejs.org/en/
-• NativeScript https://www.nativescript.org
-• Android SDK / Xcode (depending if you want to build Android/iOS apps)
+* Node.js https://nodejs.org/en/
+* NativeScript https://www.nativescript.org
+* Android SDK / Xcode (depending if you want to build Android/iOS apps)
 
 No checks are performed by the app. An automated installer is currently under development.
 
